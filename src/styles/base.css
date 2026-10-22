@@ -1,0 +1,168 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  overflow-wrap: break-word;
+}
+
+:lang(ja) body,
+body:lang(ja) {
+  font-family: var(--font-sans-ja);
+  line-height: 1.8;
+  line-break: strict;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(2rem, 1.5rem + 2.5vw, 2.75rem);
+  margin: 0 0 var(--space-3);
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin: var(--space-12) 0 var(--space-4);
+}
+
+h3 {
+  font-size: 1.15rem;
+  margin: var(--space-8) 0 var(--space-2);
+}
+
+p,
+ul,
+ol {
+  margin: 0 0 var(--space-4);
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--accent-strong);
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+img,
+svg,
+picture {
+  max-width: 100%;
+  height: auto;
+}
+
+code,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+:not(pre) > code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 0.25rem;
+}
+
+pre {
+  padding: var(--space-4);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  border: 1px solid var(--border);
+}
+
+/* Shiki dual themes: swap to the dark token colors under the dark scheme. */
+@media (prefers-color-scheme: dark) {
+  .astro-code,
+  .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}
+
+.container {
+  width: 100%;
+  max-width: calc(var(--measure) + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.container.wide {
+  max-width: calc(var(--wide) + 2 * var(--gutter));
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -3rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.tag-list li {
+  font-size: 0.85rem;
+  padding: 0.1rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

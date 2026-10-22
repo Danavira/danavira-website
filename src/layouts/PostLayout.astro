@@ -1,0 +1,65 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import Diagram from '../components/Diagram.astro';
+import { t, type Alternates, type Locale } from '../i18n';
+import { formatDate } from '../lib/content';
+import BaseLayout from './BaseLayout.astro';
+import '../styles/prose.css';
+
+interface Props {
+  post: CollectionEntry<'writing'>;
+  locale: Locale;
+  alternates: Alternates;
+}
+
+const { post, locale, alternates } = Astro.props;
+const { title, description, pubDate, updatedDate, draft } = post.data;
+const dict = t(locale);
+const { Content } = await render(post);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale={locale}
+  alternates={alternates}
+  ogType="article"
+  noindex={draft}
+>
+  <article class="container">
+    <header class="intro">
+      <h1>{title}</h1>
+      <p class="muted meta">
+        {draft && <strong class="draft">{dict.post.draft}</strong>}
+        {dict.post.published}{' '}
+        <time datetime={pubDate.toISOString()}>{formatDate(pubDate, locale)}</time>
+        {updatedDate && (
+          <>
+            {' · '}
+            {dict.post.updated}{' '}
+            <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate, locale)}</time>
+          </>
+        )}
+      </p>
+    </header>
+    <div class="prose">
+      <Content components={{ Diagram }} />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .intro {
+    margin-bottom: var(--space-8);
+  }
+
+  .meta {
+    font-size: 0.95rem;
+  }
+
+  .draft {
+    color: var(--focus);
+    margin-right: var(--space-2);
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { localizedPath, t, type Locale } from '../i18n';
+import { formatDate, slugOf } from '../lib/content';
+
+interface Props {
+  posts: CollectionEntry<'writing'>[];
+  locale: Locale;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { posts, locale, headingLevel: Heading = 'h2' } = Astro.props;
+---
+
+<ul class="posts">
+  {posts.map((post) => (
+    <li>
+      <Heading class="title">
+        <a href={localizedPath(locale, `writing/${slugOf(post)}`)}>{post.data.title}</a>
+        {post.data.draft && <span class="draft">{t(locale).post.draft}</span>}
+      </Heading>
+      <time class="muted" datetime={post.data.pubDate.toISOString()}>
+        {formatDate(post.data.pubDate, locale)}
+      </time>
+      <p>{post.data.description}</p>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .posts {
+    list-style: none;
+    padding: 0;
+  }
+
+  .posts li + li {
+    margin-top: var(--space-6);
+  }
+
+  .title {
+    font-size: 1.1rem;
+    margin: 0;
+  }
+
+  time {
+    font-size: 0.9rem;
+  }
+
+  p {
+    margin: var(--space-1) 0 0;
+  }
+
+  .draft {
+    margin-left: var(--space-2);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--focus);
+  }
+</style>

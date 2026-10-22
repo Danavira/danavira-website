@@ -1,0 +1,180 @@
+---
+import { render } from 'astro:content';
+import PostList from '../../components/PostList.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPage, getProjects, getPublishedPosts, pageLocales, slugOf } from '../../lib/content';
+import { site } from '../../site.config';
+
+export async function getStaticPaths() {
+  return (await pageLocales('home')).map((l) => ({ params: { locale: localeParam(l) } }));
+}
+
+const locale = localeFromParam(Astro.params.locale);
+const dict = t(locale);
+const page = await getPage(locale, 'home');
+if (!page) throw new Error(`pages/${locale}/home.mdx not found`);
+const { Content } = await render(page);
+
+const projects = await getProjects(locale);
+const featured = projects.find((p) => p.data.featured);
+const others = projects.filter((p) => !p.data.featured).slice(0, 3);
+const posts = (await getPublishedPosts(locale)).slice(0, 3);
+const cvHref = localizedPath((await pageLocales('cv')).includes(locale) ? locale : 'en', 'cv');
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: site.name,
+  jobTitle: site.jobTitle,
+  url: site.url,
+  homeLocation: { '@type': 'Place', name: site.location },
+  alumniOf: { '@type': 'CollegeOrUniversity', name: site.education.school },
+  hasCredential: site.credentials.map((name) => ({
+    '@type': 'EducationalOccupationalCredential',
+    name,
+  })),
+  sameAs: [site.github, site.linkedin],
+};
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.description}
+  locale={locale}
+  alternates={alternatesFor(await pageLocales('home'))}
+  isHome
+  ogType="profile"
+  jsonLd={person}
+>
+  <div class="container wide">
+    <section class="hero" aria-labelledby="name">
+      <h1 id="name">{page.data.title}</h1>
+      {page.data.identity && <p class="identity">{page.data.identity}</p>}
+      <div class="bio">
+        <Content />
+      </div>
+      <ul class="cta">
+        <li>
+          <a class="primary" href={cvHref}>
+            {dict.links.cv}
+          </a>
+        </li>
+        <li>
+          <a href={site.github}>{dict.links.github}</a>
+        </li>
+        <li>
+          <a href={site.linkedin}>{dict.links.linkedin}</a>
+        </li>
+        <li>
+          <a href={`mailto:${site.email}`}>{dict.links.email}</a>
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="credentials">
+      <h2 id="credentials" class="visually-hidden">
+        {dict.home.credentials}
+      </h2>
+      <ul class="tag-list credentials">
+        {site.credentials.map((c) => (
+          <li>{c}</li>
+        ))}
+        <li>
+          {site.education.degree}, {site.education.school}
+        </li>
+      </ul>
+    </section>
+
+    {featured && (
+      <section aria-labelledby="featured">
+        <h2 id="featured">{dict.home.featured}</h2>
+        <ProjectCard
+          project={featured}
+          href={localizedPath(locale, 'homelab')}
+          locale={locale}
+          featured
+        />
+      </section>
+    )}
+
+    {others.length > 0 && (
+      <section aria-labelledby="projects">
+        <h2 id="projects">{dict.home.projects}</h2>
+        <div class="grid">
+          {others.map((p) => (
+            <ProjectCard
+              project={p}
+              href={localizedPath(locale, `projects/${slugOf(p)}`)}
+              locale={locale}
+            />
+          ))}
+        </div>
+        <p>
+          <a href={localizedPath(locale, 'projects')}>{dict.home.allProjects}</a>
+        </p>
+      </section>
+    )}
+
+    {posts.length > 0 && (
+      <section aria-labelledby="writing">
+        <h2 id="writing">{dict.home.writing}</h2>
+        <PostList posts={posts} locale={locale} headingLevel="h3" />
+        <p>
+          <a href={localizedPath(locale, 'writing')}>{dict.home.allWriting}</a>
+        </p>
+      </section>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    max-width: var(--measure);
+  }
+
+  .identity {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-6);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding: 0;
+    margin-top: var(--space-6);
+    list-style: none;
+  }
+
+  .cta a {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+
+  .cta a.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .cta a.primary:hover {
+    background: var(--accent-strong);
+  }
+
+  .credentials {
+    margin-top: var(--space-6);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+  }
+</style>

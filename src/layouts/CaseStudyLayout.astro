@@ -1,0 +1,94 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
+import Diagram from '../components/Diagram.astro';
+import { t, type Alternates, type Locale } from '../i18n';
+import BaseLayout from './BaseLayout.astro';
+import '../styles/prose.css';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  locale: Locale;
+  alternates: Alternates;
+  /** The featured project (homelab) uses the wide column. */
+  wide?: boolean;
+}
+
+const { project, locale, alternates, wide = false } = Astro.props;
+const { title, description, stack, architecture, links } = project.data;
+const dict = t(locale);
+const { Content, headings } = await render(project);
+
+// Enforce the case-study template: every required section must be an h2.
+const present = new Set(headings.filter((h) => h.depth === 2).map((h) => h.text.trim()));
+const missing = dict.project.requiredSections.filter((s) => !present.has(s));
+if (missing.length) {
+  throw new Error(
+    `projects/${project.id}: missing required "## " sections: ${missing.join(', ')}. ` +
+      `Headings come from src/i18n/${locale}.ts project.requiredSections.`,
+  );
+}
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale={locale}
+  alternates={alternates}
+  ogType="article"
+>
+  <article class:list={['container', { wide }]}>
+    <header class="intro">
+      <h1>{title}</h1>
+      <p class="lede muted">{description}</p>
+      {links.length > 0 && (
+        <ul class="links">
+          {links.map((l) => (
+            <li>
+              <a href={l.href}>{l.label}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </header>
+
+    {architecture && <Diagram src={architecture.src} alt={architecture.alt} />}
+
+    <div class="prose">
+      <Content components={{ Diagram }} />
+    </div>
+
+    <section aria-labelledby="stack">
+      <h2 id="stack">{dict.project.stack}</h2>
+      <ul class="tag-list">
+        {stack.map((s) => (
+          <li>{s}</li>
+        ))}
+      </ul>
+    </section>
+  </article>
+</BaseLayout>
+
+<style>
+  .intro {
+    margin-bottom: var(--space-8);
+  }
+
+  .lede {
+    font-size: 1.15rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Wide layout widens diagrams and tables but keeps paragraphs at a readable
+     measure. */
+  .wide .prose > :global(:not(picture, figure, table, pre, .diagram)) {
+    max-width: var(--measure);
+  }
+</style>

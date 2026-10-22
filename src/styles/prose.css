@@ -1,0 +1,35 @@
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose li + li {
+  margin-top: var(--space-1);
+}
+
+.prose blockquote {
+  margin: var(--space-6) 0;
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--border);
+  color: var(--text-muted);
+}
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-6) 0;
+  display: block;
+  overflow-x: auto;
+}
+
+.prose th,
+.prose td {
+  border-bottom: 1px solid var(--border);
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+}
+
+/* rehype-mermaid emits a <picture> with its own dark variant. */
+.prose picture {
+  display: block;
+  margin: var(--space-6) 0;
+}

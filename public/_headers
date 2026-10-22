@@ -1,0 +1,10 @@
+# Cloudflare Pages response headers. nginx/security-headers.inc carries the
+# same set for the container image; keep the two in step.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable

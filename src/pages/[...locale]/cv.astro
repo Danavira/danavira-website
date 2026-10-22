@@ -1,0 +1,63 @@
+---
+import { render } from 'astro:content';
+import { alternatesFor, localeFromParam, localeParam, t } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getPage, pageLocales } from '../../lib/content';
+import '../../styles/prose.css';
+
+export async function getStaticPaths() {
+  return (await pageLocales('cv')).map((l) => ({ params: { locale: localeParam(l) } }));
+}
+
+const locale = localeFromParam(Astro.params.locale);
+const dict = t(locale);
+const page = await getPage(locale, 'cv');
+if (!page) throw new Error(`pages/${locale}/cv.mdx not found`);
+const { Content } = await render(page);
+const pdf = '/cv.pdf';
+---
+
+<BaseLayout
+  title={page.data.title}
+  description={page.data.description}
+  locale={locale}
+  alternates={alternatesFor(await pageLocales('cv'), 'cv')}
+>
+  <div class="container wide">
+    <h1>{page.data.title}</h1>
+    <div class="prose intro">
+      <Content />
+    </div>
+    <p>
+      <a class="download" href={pdf} download>
+        {dict.cv.download}
+      </a>
+    </p>
+    <!-- Mobile browsers mostly refuse to embed PDFs, which is why the download
+         link above comes first and the fallback repeats it. -->
+    <object class="pdf" data={pdf} type="application/pdf" title={dict.cv.embedTitle}>
+      <p>
+        <a href={pdf}>{dict.cv.download}</a>
+      </p>
+    </object>
+  </div>
+</BaseLayout>
+
+<style>
+  .intro {
+    max-width: var(--measure);
+  }
+
+  .download {
+    font-weight: 600;
+  }
+
+  .pdf {
+    display: block;
+    width: 100%;
+    height: min(80vh, 70rem);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: var(--space-4);
+  }
+</style>

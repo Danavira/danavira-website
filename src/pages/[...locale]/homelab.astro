@@ -1,0 +1,24 @@
+---
+import { alternatesFor, localeFromParam, localeParam, locales } from '../../i18n';
+import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
+import { featuredLocales, getFeaturedProject } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of locales) {
+    const project = await getFeaturedProject(locale);
+    if (project) paths.push({ params: { locale: localeParam(locale) }, props: { project } });
+  }
+  return paths;
+}
+
+const { project } = Astro.props;
+const locale = localeFromParam(Astro.params.locale);
+---
+
+<CaseStudyLayout
+  project={project}
+  locale={locale}
+  alternates={alternatesFor(await featuredLocales(), 'homelab')}
+  wide
+/>

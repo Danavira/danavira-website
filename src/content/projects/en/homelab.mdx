@@ -1,0 +1,51 @@
+---
+title: 'Homelab: a 3-node k3s platform run with GitOps'
+description: 'TODO(yasa): one or two sentences on what the homelab proves. Used on cards, in search results and in link previews.'
+featured: true
+order: 0
+stack:
+  - k3s
+  - Argo CD
+  - Prometheus
+  - Grafana
+  - Loki
+  - Kyverno
+  - Trivy
+  - Radar
+architecture:
+  src: ../../../assets/diagrams/homelab-placeholder.svg
+  alt: 'TODO(yasa): describe the diagram in one or two sentences, for example which nodes run what and how changes flow from Git to the cluster.'
+links:
+  - label: Cluster manifests on GitHub
+    href: https://github.com/Danavira/data-platform-manifests
+---
+
+## Context
+
+TODO(yasa): why you built it and what you wanted to practise or prove.
+
+## Architecture
+
+TODO(yasa): walk through the diagram above. The Mermaid block below is rendered to SVG at build time and is only a starting point built from the stack you listed.
+
+```mermaid
+flowchart LR
+  accDescr: TODO(yasa): one sentence describing this diagram. It becomes the image alt text.
+  git[Git repository] --> argo[Argo CD]
+  argo --> cluster[3-node k3s cluster]
+  cluster --> obs[Prometheus, Grafana, Loki]
+  kyverno[Kyverno policies] --> cluster
+  trivy[Trivy scanning] --> cluster
+```
+
+## Decisions and tradeoffs
+
+TODO(yasa): two or three choices, what you picked, what you gave up.
+
+## What broke and how I fixed it
+
+TODO(yasa): one or two real incidents, how you found the cause and what you changed.
+
+## Results
+
+TODO(yasa): what runs on it today and what you can now do that you could not before. Only numbers you can back up.

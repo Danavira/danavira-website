@@ -1,0 +1,61 @@
+---
+import { t, type Locale } from '../i18n';
+import { site } from '../site.config';
+
+interface Props {
+  locale: Locale;
+}
+
+const dict = t(Astro.props.locale);
+---
+
+<footer class="site-footer">
+  <div class="container wide row muted">
+    <span>
+      {site.name}, {site.location}
+    </span>
+    <ul>
+      <li>
+        <a href={site.github}>{dict.links.github}</a>
+      </li>
+      <li>
+        <a href={site.linkedin}>{dict.links.linkedin}</a>
+      </li>
+      <li>
+        <a href={`mailto:${site.email}`}>{dict.links.email}</a>
+      </li>
+      <li>
+        <a href="https://github.com/Danavira/danavira-website">{dict.footer.source}</a>
+      </li>
+    </ul>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    margin-top: var(--space-16);
+    font-size: 0.9rem;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: var(--space-6);
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    color: var(--text-muted);
+  }
+</style>

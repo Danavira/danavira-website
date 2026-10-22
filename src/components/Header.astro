@@ -1,0 +1,78 @@
+---
+import { localizedPath, t, type Alternates, type Locale } from '../i18n';
+import { site } from '../site.config';
+import LangSwitch from './LangSwitch.astro';
+
+interface Props {
+  locale: Locale;
+  alternates: Alternates;
+  /** Where each nav item points. Falls back to English when no translation exists. */
+  nav: { key: 'projects' | 'homelab' | 'writing' | 'cv'; href: string }[];
+}
+
+const { locale, alternates, nav } = Astro.props;
+const dict = t(locale);
+const current = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container wide bar">
+    <a class="name" href={localizedPath(locale)}>
+      {site.name}
+    </a>
+    <nav aria-label={dict.nav.label}>
+      <ul>
+        {nav.map(({ key, href }) => (
+          <li>
+            <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>
+              {dict.nav[key]}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <LangSwitch locale={locale} alternates={alternates} />
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-6);
+    padding-block: var(--space-4);
+  }
+
+  .name {
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    margin-right: auto;
+  }
+
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  nav a {
+    color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  nav a:hover,
+  nav a[aria-current='page'] {
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+</style>

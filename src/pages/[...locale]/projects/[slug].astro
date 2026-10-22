@@ -1,0 +1,35 @@
+---
+import { alternatesFor, localeFromParam, localeParam, localizedPath, locales } from '../../../i18n';
+import CaseStudyLayout from '../../../layouts/CaseStudyLayout.astro';
+import { entryLocales, getProjects, slugOf } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of locales) {
+    for (const project of await getProjects(locale)) {
+      paths.push({
+        params: { locale: localeParam(locale), slug: slugOf(project) },
+        props: { project },
+      });
+    }
+  }
+  return paths;
+}
+
+const { project } = Astro.props;
+const locale = localeFromParam(Astro.params.locale);
+
+// The featured project lives at /homelab/. This URL only exists so an old or
+// guessed link lands there, and it carries a canonical pointing at /homelab/.
+if (project.data.featured) {
+  return Astro.redirect(localizedPath(locale, 'homelab'), 301);
+}
+
+const slug = slugOf(project);
+---
+
+<CaseStudyLayout
+  project={project}
+  locale={locale}
+  alternates={alternatesFor(await entryLocales('projects', slug), `projects/${slug}`)}
+/>

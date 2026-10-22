@@ -1,0 +1,59 @@
+/* Colors are chosen for at least 4.5:1 contrast for body text and 3:1 for
+   borders and focus rings against their background, in both schemes. */
+:root {
+  color-scheme: light dark;
+
+  --font-sans:
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN', 'Yu Gothic', YuGothic, 'Noto Sans CJK JP', 'Noto Sans JP',
+    sans-serif;
+  --font-sans-ja:
+    'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', YuGothic, 'Noto Sans CJK JP',
+    'Noto Sans JP', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --bg: #fbfbfa;
+  --surface: #ffffff;
+  --text: #1b1d21;
+  --text-muted: #555b65;
+  --border: #d9dbe0;
+  --accent: #1f5fbf;
+  --accent-strong: #174a96;
+  --focus: #c2410c;
+  --code-bg: #f1f2f4;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --measure: 42rem;
+  --wide: 64rem;
+  --gutter: 1rem;
+  --radius: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111317;
+    --surface: #181b20;
+    --text: #e6e8eb;
+    --text-muted: #a3a9b3;
+    --border: #343941;
+    --accent: #7fb0ff;
+    --accent-strong: #a8c8ff;
+    --focus: #fb923c;
+    --code-bg: #1e2228;
+  }
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --gutter: 1.5rem;
+  }
+}

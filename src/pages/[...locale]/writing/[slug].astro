@@ -1,0 +1,25 @@
+---
+import { alternatesFor, localeFromParam, localeParam, locales } from '../../../i18n';
+import PostLayout from '../../../layouts/PostLayout.astro';
+import { entryLocales, getPublishedPosts, slugOf } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of locales) {
+    for (const post of await getPublishedPosts(locale)) {
+      paths.push({ params: { locale: localeParam(locale), slug: slugOf(post) }, props: { post } });
+    }
+  }
+  return paths;
+}
+
+const { post } = Astro.props;
+const locale = localeFromParam(Astro.params.locale);
+const slug = slugOf(post);
+---
+
+<PostLayout
+  post={post}
+  locale={locale}
+  alternates={alternatesFor(await entryLocales('writing', slug), `writing/${slug}`)}
+/>

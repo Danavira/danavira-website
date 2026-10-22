@@ -1,0 +1,12 @@
+# Link check over the built site (dist/). Run in CI after `pnpm build`.
+#
+# LinkedIn answers automated requests with HTTP 999, so it can never pass.
+# Placeholder URLs are excluded until the TODO(yasa) values are filled in.
+exclude = [
+  '^https://(www\.)?linkedin\.com/',
+  'TODO-yasa',
+]
+# Internal links resolve against dist/ so a missing page fails the check.
+root_dir = "dist"
+max_retries = 2
+accept = ["200..=299", "429"]

@@ -1,0 +1,118 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { localizedPath, t, type Alternates, type Locale } from '../i18n';
+import { collectionLocales, featuredLocales, pageLocales, postLocales } from '../lib/content';
+import { ogKey } from '../lib/pages';
+import { site } from '../site.config';
+import '../styles/base.css';
+
+interface Props {
+  title: string;
+  description: string;
+  locale: Locale;
+  /** Every locale this page exists in, including the current one. */
+  alternates?: Alternates;
+  /** Home passes true so the title is not suffixed with the site name twice. */
+  isHome?: boolean;
+  ogType?: 'website' | 'article' | 'profile';
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  locale,
+  alternates = {},
+  isHome = false,
+  ogType = 'website',
+  noindex = false,
+  jsonLd,
+} = Astro.props;
+
+const dict = t(locale);
+const fullTitle = isHome ? `${site.name} | ${site.jobTitle}` : `${title} | ${site.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(`/og/${ogKey(Astro.url.pathname)}.png`, Astro.site);
+const hreflangs = Object.entries(alternates);
+
+// Nav points at this locale's version where one exists, otherwise English.
+// Sections with nothing in them are left out entirely.
+const pick = (have: Locale[], path: string) =>
+  have.includes(locale)
+    ? localizedPath(locale, path)
+    : have.includes('en')
+      ? localizedPath('en', path)
+      : undefined;
+
+const withPosts = await postLocales();
+const nav = (
+  [
+    { key: 'projects', href: pick(await collectionLocales('projects'), 'projects') },
+    { key: 'homelab', href: pick(await featuredLocales(), 'homelab') },
+    { key: 'writing', href: pick(withPosts, 'writing') },
+    { key: 'cv', href: pick(await pageLocales('cv'), 'cv') },
+  ] as const
+).filter((n): n is { key: typeof n.key; href: string } => n.href !== undefined);
+
+const hasFeed = locale === 'en' && withPosts.includes('en');
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex" />}
+    {hreflangs.length > 1 &&
+      hreflangs.map(([lang, href]) => (
+        <link rel="alternate" hreflang={lang} href={new URL(href, Astro.site)} />
+      ))}
+    {hreflangs.length > 1 && alternates.en && (
+      <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, Astro.site)} />
+    )}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    {hasFeed && (
+      <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
+    )}
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={locale === 'ja' ? 'ja_JP' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    {jsonLd && <JsonLd data={jsonLd} />}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {dict.skipToContent}
+    </a>
+    <Header locale={locale} alternates={alternates} nav={nav} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>
+
+<style>
+  main {
+    padding-top: var(--space-12);
+  }
+
+  main:focus {
+    outline: none;
+  }
+</style>

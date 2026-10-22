@@ -1,0 +1,19 @@
+---
+import { localizedPath, t } from '../i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const dict = t('en');
+---
+
+<BaseLayout title={dict.notFound.title} description={dict.notFound.description} locale="en" noindex>
+  <div class="container">
+    <h1>{dict.notFound.title}</h1>
+    <p>{dict.notFound.description}</p>
+    <p>
+      <a href={localizedPath('en')}>{dict.notFound.back}</a>
+    </p>
+    <p lang="ja">
+      {t('ja').notFound.description} <a href={localizedPath('en')}>{t('ja').notFound.back}</a>
+    </p>
+  </div>
+</BaseLayout>

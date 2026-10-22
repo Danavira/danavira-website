@@ -1,0 +1,50 @@
+---
+import ProjectCard from '../../../components/ProjectCard.astro';
+import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../../i18n';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { collectionLocales, getProjects, slugOf } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  return (await collectionLocales('projects')).map((l) => ({ params: { locale: localeParam(l) } }));
+}
+
+const locale = localeFromParam(Astro.params.locale);
+const dict = t(locale);
+const projects = await getProjects(locale);
+---
+
+<BaseLayout
+  title={dict.projectsIndex.title}
+  description={dict.projectsIndex.description}
+  locale={locale}
+  alternates={alternatesFor(await collectionLocales('projects'), 'projects')}
+>
+  <div class="container wide">
+    <h1>{dict.projectsIndex.title}</h1>
+    <p class="muted lede">{dict.projectsIndex.description}</p>
+    <div class="grid">
+      {projects.map((p) => (
+        <ProjectCard
+          project={p}
+          href={localizedPath(locale, p.data.featured ? 'homelab' : `projects/${slugOf(p)}`)}
+          locale={locale}
+          headingLevel="h2"
+          featured={p.data.featured}
+        />
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .lede {
+    max-width: var(--measure);
+    margin-bottom: var(--space-8);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(18rem, 100%), 1fr));
+  }
+</style>

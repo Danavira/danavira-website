@@ -1,0 +1,27 @@
+---
+import PostList from '../../../components/PostList.astro';
+import { alternatesFor, localeFromParam, localeParam, t } from '../../../i18n';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getPublishedPosts, postLocales } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  return (await postLocales()).map((l) => ({ params: { locale: localeParam(l) } }));
+}
+
+const locale = localeFromParam(Astro.params.locale);
+const dict = t(locale);
+const posts = await getPublishedPosts(locale);
+---
+
+<BaseLayout
+  title={dict.writingIndex.title}
+  description={dict.writingIndex.description}
+  locale={locale}
+  alternates={alternatesFor(await postLocales(), 'writing')}
+>
+  <div class="container">
+    <h1>{dict.writingIndex.title}</h1>
+    <p class="muted">{dict.writingIndex.description}</p>
+    <PostList posts={posts} locale={locale} />
+  </div>
+</BaseLayout>

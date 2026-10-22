@@ -1,0 +1,88 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+  href: string;
+  locale: Locale;
+  headingLevel?: 'h2' | 'h3';
+  featured?: boolean;
+}
+
+const { project, href, locale, headingLevel: Heading = 'h3', featured = false } = Astro.props;
+const { title, description, stack } = project.data;
+---
+
+<article class:list={['card', { featured }]}>
+  <Heading class="title">
+    <a href={href}>{title}</a>
+  </Heading>
+  <p>{description}</p>
+  <ul class="tag-list" aria-label={t(locale).project.stack}>
+    {stack.map((s) => (
+      <li>{s}</li>
+    ))}
+  </ul>
+  {featured && (
+    <span class="cta" aria-hidden="true">
+      {t(locale).project.readCaseStudy}
+    </span>
+  )}
+</article>
+
+<style>
+  .card {
+    position: relative;
+    padding: var(--space-6);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .card.featured {
+    border-left: 4px solid var(--accent);
+  }
+
+  .title {
+    margin: 0 0 var(--space-2);
+    font-size: 1.15rem;
+  }
+
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* The heading link covers the whole card so it is one tab stop and one
+     accessible name, but the full card is clickable. */
+  .title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .card:hover .title a {
+    text-decoration: underline;
+  }
+
+  .card:focus-within {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .title a:focus-visible {
+    outline: none;
+  }
+
+  .tag-list {
+    margin-bottom: 0;
+  }
+
+  .cta {
+    display: inline-block;
+    margin-top: var(--space-4);
+    font-weight: 600;
+    color: var(--accent);
+  }
+</style>

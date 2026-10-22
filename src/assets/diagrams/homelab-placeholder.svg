@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" width="800" height="300" role="img">
+  <rect x="1" y="1" width="798" height="298" rx="12" fill="#ffffff" stroke="#555b65" stroke-width="2" stroke-dasharray="10 8"/>
+  <text x="400" y="140" text-anchor="middle" font-family="system-ui, sans-serif" font-size="26" fill="#1b1d21">TODO(yasa): replace with your Excalidraw export</text>
+  <text x="400" y="180" text-anchor="middle" font-family="system-ui, sans-serif" font-size="18" fill="#555b65">src/assets/diagrams/homelab.svg</text>
+</svg>

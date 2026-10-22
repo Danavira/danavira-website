@@ -1,0 +1,45 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+  caption?: string;
+}
+
+const { src, alt, caption } = Astro.props;
+if (!alt.trim()) throw new Error('Diagram: alt text is required');
+---
+
+<figure class="diagram">
+  <div class="canvas">
+    <Image src={src} alt={alt} />
+  </div>
+  {caption && <figcaption class="muted">{caption}</figcaption>}
+</figure>
+
+<style>
+  .diagram {
+    margin: var(--space-6) 0;
+  }
+
+  /* Excalidraw exports assume a white page. Keeping that page in dark mode
+     beats shipping a second export per diagram. */
+  .canvas {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+  }
+
+  .canvas :global(img) {
+    display: block;
+    margin-inline: auto;
+  }
+
+  figcaption {
+    font-size: 0.9rem;
+    margin-top: var(--space-2);
+  }
+</style>
