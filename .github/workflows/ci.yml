@@ -23,6 +23,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          # .nvmrc says "22", which otherwise resolves to the runner's cached
+          # 22.x; that can fall below the engines floor Astro enforces.
+          check-latest: true
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
