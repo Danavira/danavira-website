@@ -1,0 +1,61 @@
+# Roles and selected projects for /cv/ and the generated cv.pdf, newest first
+# within each section. Editable in the CMS at /admin/ (Resume).
+#
+# start/end are YYYY-MM. Leave end out for a current role.
+
+- id: ai-transcend
+  section: work
+  role: Data Engineer / Consultant
+  org: AI Transcend
+  orgNote: AI system integrator startup
+  start: 2026-02
+  note: Moved via internal transfer from Nexsoft.
+  bullets:
+    - Developing the company's intelligent document processing application for banking and financial clients, implementing the full pipeline. Document parsing (PaddleOCR, Qwen VL), embedding, vector and graph retrieval (Qdrant, Neo4j), and curated LLM generation (Qwen, Jina).
+    - Built and maintained a CI/CD workflow using GitHub Actions and Portainer to automate image builds and container deployments, keeping development and deployment environments reproducible and consistent across the team.
+    - Containerized and operated the team's AI/ML services on self-managed cloud instances, keeping 3 applications orchestrated with Docker Compose and managing hosting and day-to-day operations.
+    - Supported client consulting with technical due diligence, mapping client workflows and requirements to product capabilities under on-prem, data sovereignty and compliance constraints. Standardized the team's technical documentation.
+
+- id: nexsoft
+  section: work
+  role: Data Engineer
+  org: Nexsoft
+  orgNote: FMCG distribution management software vendor
+  start: 2025-05
+  end: 2026-02
+  bullets:
+    - Redesigned the analytics warehouse from a heavily indexed PostgreSQL snowflake schema to ClickHouse on wide fact and dimension tables, separating analytical workloads from PostgreSQL and reducing storage footprint by about 10x.
+    - Built and orchestrated the Spark and Airflow ETL pipelines (about 10 DAGs, 3 to 6M records a day), supporting historical backfills and watermark-based incremental ingestion. Established reconciliation checks across volume, aggregates, freshness, uniqueness, completeness and consistency, then phased downstream services onto ClickHouse before retiring the PostgreSQL analytics indexes.
+    - Collaborated with the solutions architect and engineering manager on the design of a B2B sales recommendation engine that guides distributor salesmen on which products to recommend at each store visit, based on historical patterns.
+    - Built the feature-engineering pipelines and model training for the engine, an XGBoost repeat-purchase model with rule-based scoring for new products, engineering more than 50 customer, product, area, seasonal and promotion features.
+    - Deployed and operated containerized data infrastructure on Docker and Kubernetes, and maintained ClickHouse materialized views serving low-latency features for daily inference.
+
+- id: coles
+  section: work
+  role: Team Member
+  org: Coles Group
+  location: Melbourne
+  start: 2023-01
+  end: 2025-01
+  bullets:
+    - Worked part-time alongside my final year at the University of Melbourne, then continued after graduating in December 2023 while self-studying data engineering ahead of my first engineering role.
+
+- id: unimelb-intern
+  section: work
+  role: Data Analyst Intern
+  org: The University of Melbourne
+  start: 2022-11
+  end: 2023-02
+  bullets:
+    - Built interactive Power BI dashboards monitoring applications, offer conversion and EFTSL targets across domestic and international student cohorts.
+    - Cleaned and standardized StudentOne and enterprise warehouse admissions extracts using Python and Power Query. Automated validation and recurring faculty reporting, replacing manual spreadsheets.
+
+- id: k8s-platform
+  section: project
+  role: Kubernetes Platform
+  org: Homelab
+  start: 2026-03
+  link: https://sky.danavira.com
+  bullets:
+    - Designed and operate a 3-node k3s cluster across VPSs running realistic platform workloads, with Argo CD (app-of-apps), Image Updater for automated promotion, GitHub Actions CI/CD, and Helm for third-party tooling.
+    - Run data pipelines and platform services (Airflow, PostgreSQL, ClickHouse via operator, MinIO) with monitoring and Loki logging, external secrets via Infisical, Trivy image scanning, Kyverno admission policies and Seccomp profiles.

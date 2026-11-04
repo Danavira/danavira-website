@@ -24,6 +24,8 @@ let pages = 0;
 for await (const file of walk(dist)) {
   if (!file.endsWith('.html')) continue;
   const rel = relative(dist, file);
+  // The CMS shell is not a site page: no layout, no OG image, noindex.
+  if (rel.startsWith('admin/')) continue;
   const html = await readFile(file, 'utf8');
   // Astro.redirect pages are a bare meta refresh with no layout.
   if (/<meta http-equiv="refresh"/.test(html)) continue;
@@ -42,6 +44,14 @@ for await (const file of walk(dist)) {
 
   if (/[\u2014\u2015]/.test(html)) problems.push(`${rel}: contains an em dash`);
   if (/<strong class="draft"/.test(html)) problems.push(`${rel}: draft post in build output`);
+}
+
+for (const f of ['cv.pdf', 'admin/sveltia-cms.js', 'admin/config.yml']) {
+  try {
+    await access(join(dist, f));
+  } catch {
+    problems.push(`${f} missing (see scripts/build-cv-pdf.mjs and scripts/copy-cms.mjs)`);
+  }
 }
 
 if (pages === 0) problems.push('no HTML pages found; run pnpm build first');

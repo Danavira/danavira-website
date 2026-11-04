@@ -2,7 +2,14 @@
 // one image per entry here, and BaseLayout points og:image at the same key, so
 // a page added without an entry here fails scripts/check-dist.mjs in CI.
 import { localizedPath, locales, t } from '../i18n';
-import { collectionLocales, getPage, getProjects, getPublishedPosts, slugOf } from './content';
+import {
+  collectionLocales,
+  getPage,
+  getProjects,
+  getPublishedPosts,
+  getTags,
+  slugOf,
+} from './content';
 
 export interface PageMeta {
   path: string;
@@ -43,8 +50,26 @@ export async function getAllPages(): Promise<PageMeta[]> {
       for (const post of posts) {
         add(`writing/${slugOf(post)}`, post.data.title, post.data.description);
       }
+      for (const { slug, tag } of await getTags(locale)) {
+        add(
+          `writing/tags/${slug}`,
+          dict.writingIndex.taggedTitle(tag),
+          dict.writingIndex.taggedDescription(tag),
+        );
+      }
     }
   }
+
+  // English only for now: the data behind these pages is not localized.
+  const en = t('en');
+  out.push(
+    {
+      path: '/certifications/',
+      title: en.certifications.title,
+      description: en.certifications.description,
+    },
+    { path: '/contact/', title: en.contact.title, description: en.contact.description },
+  );
 
   out.push({
     path: '/404/',

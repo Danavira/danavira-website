@@ -1,0 +1,173 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { t, type Locale } from '../i18n';
+import { formatMonth } from '../lib/content';
+
+interface Props {
+  cert: CollectionEntry<'certifications'>;
+  locale: Locale;
+}
+
+const { cert, locale } = Astro.props;
+const { data } = cert;
+const dict = t(locale).certifications;
+// The preview opens the certificate itself when there is one, otherwise the
+// issuer's verification page.
+const previewHref = data.pdf ?? data.verifyUrl;
+// A badge (Kubestronaut) is a logo, not a scanned certificate, so it is shown
+// smaller and centred instead of edge to edge.
+const isBadge = cert.id === 'kubestronaut';
+---
+
+<article class:list={['cert', { badge: isBadge }]} id={cert.id}>
+  {data.image && data.imageAlt && (
+    <div class="preview">
+      {previewHref ? (
+        <a href={previewHref}>
+          <Image src={data.image} alt={data.imageAlt} width={640} />
+        </a>
+      ) : (
+        <Image src={data.image} alt={data.imageAlt} width={640} />
+      )}
+    </div>
+  )}
+  <div class="body">
+    <h3>{data.name}</h3>
+    <p class="muted issuer">{data.issuer}</p>
+    {data.summary && <p>{data.summary}</p>}
+    <dl>
+      <div>
+        <dt>{dict.earned}</dt>
+        <dd>
+          <time datetime={data.earned.toISOString().slice(0, 10)}>
+            {formatMonth(data.earned, locale)}
+          </time>
+        </dd>
+      </div>
+      {data.expires && (
+        <div>
+          <dt>{dict.expires}</dt>
+          <dd>
+            <time datetime={data.expires.toISOString().slice(0, 10)}>
+              {formatMonth(data.expires, locale)}
+            </time>
+          </dd>
+        </div>
+      )}
+      {data.credentialId && (
+        <div>
+          <dt>{dict.credentialId}</dt>
+          <dd>
+            <code>{data.credentialId}</code>
+          </dd>
+        </div>
+      )}
+    </dl>
+    {(data.verifyUrl || data.pdf || data.credlyUrl) && (
+      <ul class="links">
+        {data.verifyUrl && (
+          <li>
+            <a href={data.verifyUrl}>{dict.verify}</a>
+          </li>
+        )}
+        {data.pdf && (
+          <li>
+            <a href={data.pdf}>{dict.pdf}</a>
+          </li>
+        )}
+        {data.credlyUrl && (
+          <li>
+            <a href={data.credlyUrl}>{dict.credly}</a>
+          </li>
+        )}
+      </ul>
+    )}
+  </div>
+</article>
+
+<style>
+  .cert {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  .preview {
+    border-bottom: 1px solid var(--border);
+    background: #fff;
+    line-height: 0;
+  }
+
+  .preview img {
+    width: 100%;
+    height: auto;
+  }
+
+  .badge .preview {
+    display: flex;
+    justify-content: center;
+    padding: var(--space-4);
+  }
+
+  .badge .preview img {
+    width: auto;
+    max-height: 9rem;
+  }
+
+  .body {
+    padding: var(--space-4);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .issuer {
+    font-size: 0.9rem;
+    margin-bottom: var(--space-3);
+  }
+
+  dl {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0 0 var(--space-3);
+    font-size: 0.9rem;
+  }
+
+  dl div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+  }
+
+  dt {
+    color: var(--text-muted);
+  }
+
+  dt::after {
+    content: ':';
+  }
+
+  dd {
+    margin: 0;
+  }
+
+  code {
+    overflow-wrap: anywhere;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-size: 0.9rem;
+  }
+</style>

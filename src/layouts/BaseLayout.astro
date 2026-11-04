@@ -54,6 +54,8 @@ const nav = (
     { key: 'homelab', href: pick(await featuredLocales(), 'homelab') },
     { key: 'writing', href: pick(withPosts, 'writing') },
     { key: 'cv', href: pick(await pageLocales('cv'), 'cv') },
+    { key: 'certifications', href: localizedPath('en', 'certifications') },
+    { key: 'contact', href: localizedPath('en', 'contact') },
   ] as const
 ).filter((n): n is { key: typeof n.key; href: string } => n.href !== undefined);
 

@@ -1,0 +1,281 @@
+# Sveltia CMS configuration, served at /admin/config.yml.
+# Docs: https://github.com/sveltia/sveltia-cms
+#
+# Every save is a commit to main. The Image workflow builds the site, and
+# argocd-image-updater rolls the new image out, so a saved change is live a few
+# minutes later. Posts start as drafts: untick Draft and save to publish.
+
+backend:
+  name: github
+  repo: Danavira/danavira-website
+  branch: main
+  commit_messages:
+    create: 'content: create {{collection}} "{{slug}}"'
+    update: 'content: update {{collection}} "{{slug}}"'
+    delete: 'content: delete {{collection}} "{{slug}}"'
+    uploadMedia: 'content: upload "{{path}}"'
+    deleteMedia: 'content: delete "{{path}}"'
+
+site_url: https://danavira.com
+display_url: https://danavira.com
+
+# Fallback for uploads outside a collection. Collection fields below override it
+# so images land next to the code that optimizes them.
+media_folder: public/uploads
+public_folder: /uploads
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  - name: posts
+    label: Blog posts
+    label_singular: Blog post
+    description: Published at danavira.com/writing/<slug>/. Posts stay hidden while Draft is ticked.
+    folder: src/content/writing/en
+    path: '{{slug}}'
+    extension: md
+    format: frontmatter
+    create: true
+    sortable_fields: [pubDate, title]
+    # Images go to src/assets/writing/ so Astro resizes and compresses them.
+    # Paths in the post are relative to the post file.
+    media_folder: ../../../assets/writing
+    public_folder: ../../../assets/writing
+    summary: '{{title}} · {{pubDate | date("YYYY-MM-DD")}}{{draft | ternary(" · draft", "")}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: description
+        label: Description
+        widget: text
+        hint: One or two sentences, at most 200 characters. Used in the post list, search results and link previews.
+        pattern: ['^[\s\S]{1,200}$', 'Keep it to 200 characters or fewer']
+      - name: pubDate
+        label: Published
+        widget: datetime
+        time_format: false
+        format: YYYY-MM-DD
+        default: '{{now}}'
+      - name: updatedDate
+        label: Updated
+        widget: datetime
+        time_format: false
+        format: YYYY-MM-DD
+        required: false
+      - name: tags
+        label: Tags
+        widget: list
+        required: false
+        hint: Each tag gets a page at /writing/tags/<tag>/.
+      - name: cover
+        label: Cover image
+        widget: object
+        required: false
+        fields:
+          - { name: src, label: Image, widget: image }
+          - name: alt
+            label: Alt text
+            widget: string
+            hint: Describe the image for someone who cannot see it. Required.
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: true
+        hint: Untick and save to publish.
+      - name: body
+        label: Body
+        widget: markdown
+        hint: 'Mermaid diagrams: a ```mermaid code block with an accDescr line (its alt text). No em dashes, the build rejects them.'
+
+  - name: certifications
+    label: Certifications
+    description: Shown on /certifications/, the resume and the home page (Featured only), in this order within each category.
+    files:
+      - name: certifications
+        label: Certifications
+        file: src/data/certifications.yaml
+        fields:
+          - name: items
+            label: Certifications
+            label_singular: Certification
+            widget: list
+            root: true
+            summary: '{{name}}'
+            fields:
+              - {
+                  name: id,
+                  label: ID,
+                  widget: string,
+                  hint: 'Short, lowercase, hyphenated, e.g. aws-saa. Used in links like /certifications/#aws-saa.',
+                  pattern: ['^[a-z0-9-]+$', 'lowercase letters, digits and hyphens'],
+                }
+              - { name: name, label: Name, widget: string }
+              - { name: issuer, label: Issuer, widget: string }
+              - {
+                  name: category,
+                  label: Category,
+                  widget: select,
+                  options: [kubernetes, cloud, language, skills],
+                }
+              - {
+                  name: earned,
+                  label: Earned,
+                  widget: datetime,
+                  time_format: false,
+                  format: YYYY-MM-DD,
+                }
+              - {
+                  name: expires,
+                  label: Valid until,
+                  widget: datetime,
+                  time_format: false,
+                  format: YYYY-MM-DD,
+                  required: false,
+                }
+              - { name: summary, label: Summary, widget: text, required: false }
+              - { name: credentialId, label: Credential ID, widget: string, required: false }
+              - { name: verifyUrl, label: Verify URL, widget: string, required: false }
+              - { name: credlyUrl, label: Credly badge URL, widget: string, required: false }
+              - name: image
+                label: Preview image
+                widget: image
+                required: false
+                media_folder: /src/assets/certs
+                public_folder: ../assets/certs
+                hint: A PNG or JPG of the certificate. Check it shows no ID numbers or dates of birth.
+              - {
+                  name: imageAlt,
+                  label: Preview alt text,
+                  widget: string,
+                  required: false,
+                  hint: Required when there is a preview image.,
+                }
+              - name: pdf
+                label: Certificate PDF
+                widget: file
+                required: false
+                media_folder: /public/certs
+                public_folder: /certs
+                hint: Name it <id>.pdf. Anyone can download it, so check it shows no ID numbers or dates of birth.
+              - {
+                  name: featured,
+                  label: Featured,
+                  widget: boolean,
+                  default: false,
+                  hint: Shown on the home page and at the top of the resume.,
+                }
+
+  - name: resume
+    label: Resume
+    description: Feeds /cv/ and the downloadable cv.pdf, which is regenerated on every build.
+    files:
+      - name: experience
+        label: Experience and projects
+        file: src/data/experience.yaml
+        fields:
+          - name: items
+            label: Entries
+            label_singular: Entry
+            widget: list
+            root: true
+            summary: '{{role}} @ {{org}} ({{start}})'
+            fields:
+              - {
+                  name: id,
+                  label: ID,
+                  widget: string,
+                  pattern: ['^[a-z0-9-]+$', 'lowercase letters, digits and hyphens'],
+                }
+              - { name: section, label: Section, widget: select, options: [work, project] }
+              - { name: role, label: Role or project name, widget: string }
+              - { name: org, label: Organization, widget: string }
+              - { name: orgNote, label: About the organization, widget: string, required: false }
+              - { name: location, label: Location, widget: string, required: false }
+              - {
+                  name: start,
+                  label: Start (YYYY-MM),
+                  widget: string,
+                  pattern: ['^\d{4}-(0[1-9]|1[0-2])$', 'YYYY-MM'],
+                }
+              - {
+                  name: end,
+                  label: 'End (YYYY-MM, empty if current)',
+                  widget: string,
+                  required: false,
+                  pattern: ['^(\d{4}-(0[1-9]|1[0-2]))?$', 'YYYY-MM'],
+                }
+              - { name: note, label: Note, widget: string, required: false }
+              - { name: link, label: Link, widget: string, required: false }
+              - {
+                  name: bullets,
+                  label: Bullet points,
+                  widget: list,
+                  field: { name: bullet, label: Bullet, widget: text },
+                }
+      - name: skills
+        label: Skills
+        file: src/data/skills.yaml
+        fields:
+          - name: items
+            label: Skill groups
+            label_singular: Skill group
+            widget: list
+            root: true
+            summary: '{{label}}'
+            fields:
+              - { name: id, label: ID, widget: string }
+              - { name: label, label: Group name, widget: string }
+              - { name: items, label: Skills, widget: list }
+      - name: education
+        label: Education
+        file: src/data/education.yaml
+        fields:
+          - name: items
+            label: Degrees
+            label_singular: Degree
+            widget: list
+            root: true
+            summary: '{{degree}}, {{school}}'
+            fields:
+              - { name: id, label: ID, widget: string }
+              - { name: degree, label: Degree, widget: string }
+              - { name: school, label: School, widget: string }
+              - { name: location, label: Location, widget: string, required: false }
+              - {
+                  name: graduated,
+                  label: Graduated (YYYY-MM),
+                  widget: string,
+                  pattern: ['^\d{4}-(0[1-9]|1[0-2])$', 'YYYY-MM'],
+                }
+
+  - name: pages
+    label: Page copy
+    files:
+      - name: home
+        label: Home page
+        file: src/content/pages/en/home.mdx
+        format: frontmatter
+        fields:
+          - { name: title, label: Name, widget: string }
+          - { name: identity, label: One-line identity, widget: string }
+          - {
+              name: description,
+              label: Search description,
+              widget: text,
+              pattern: ['^[\s\S]{1,200}$', 'Keep it to 200 characters or fewer'],
+            }
+          - { name: body, label: Bio, widget: markdown }
+      - name: cv
+        label: Resume summary
+        file: src/content/pages/en/cv.mdx
+        format: frontmatter
+        fields:
+          - { name: title, label: Page title, widget: string }
+          - {
+              name: description,
+              label: Search description,
+              widget: text,
+              pattern: ['^[\s\S]{1,200}$', 'Keep it to 200 characters or fewer'],
+            }
+          - { name: body, label: Summary, widget: markdown }

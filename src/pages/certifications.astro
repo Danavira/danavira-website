@@ -1,0 +1,50 @@
+---
+import CertCard from '../components/CertCard.astro';
+import { alternatesFor, t } from '../i18n';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { certCategories, getCertifications } from '../lib/content';
+
+// English only: certificate names and IDs are the same in every language, and
+// there is no Japanese copy for the rest of the page yet.
+const locale = 'en';
+const dict = t(locale).certifications;
+const certs = await getCertifications();
+const groups = certCategories
+  .map((category) => ({ category, certs: certs.filter((c) => c.data.category === category) }))
+  .filter((g) => g.certs.length > 0);
+---
+
+<BaseLayout
+  title={dict.title}
+  description={dict.description}
+  locale={locale}
+  alternates={alternatesFor(['en'], 'certifications')}
+>
+  <div class="container wide">
+    <h1>{dict.title}</h1>
+    <p class="muted lead">{dict.verifyHint}</p>
+    {groups.map(({ category, certs }) => (
+      <section aria-labelledby={`cat-${category}`}>
+        <h2 id={`cat-${category}`}>{dict.categories[category]}</h2>
+        <div class="grid">
+          {certs.map((cert) => (
+            <CertCard cert={cert} locale={locale} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .lead {
+    max-width: var(--measure);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+    align-items: start;
+  }
+</style>

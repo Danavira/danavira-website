@@ -1,8 +1,8 @@
 ---
 import PostList from '../../../components/PostList.astro';
-import { alternatesFor, localeFromParam, localeParam, t } from '../../../i18n';
+import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../../i18n';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import { getPublishedPosts, postLocales } from '../../../lib/content';
+import { getPublishedPosts, getTags, postLocales } from '../../../lib/content';
 
 export async function getStaticPaths() {
   return (await postLocales()).map((l) => ({ params: { locale: localeParam(l) } }));
@@ -11,6 +11,12 @@ export async function getStaticPaths() {
 const locale = localeFromParam(Astro.params.locale);
 const dict = t(locale);
 const posts = await getPublishedPosts(locale);
+const tags = await getTags(locale);
+
+// Newest first, grouped by the year in Tokyo, where the posts are written.
+const year = (d: Date) =>
+  d.toLocaleDateString('en-GB', { year: 'numeric', timeZone: 'Asia/Tokyo' });
+const years = [...new Set(posts.map((p) => year(p.data.pubDate)))];
 ---
 
 <BaseLayout
@@ -22,6 +28,44 @@ const posts = await getPublishedPosts(locale);
   <div class="container">
     <h1>{dict.writingIndex.title}</h1>
     <p class="muted">{dict.writingIndex.description}</p>
-    <PostList posts={posts} locale={locale} />
+
+    {tags.length > 0 && (
+      <nav aria-labelledby="tags">
+        <h2 id="tags" class="visually-hidden">
+          {dict.writingIndex.tags}
+        </h2>
+        <ul class="tag-list">
+          {tags.map(({ slug, tag, count }) => (
+            <li>
+              <a href={localizedPath(locale, `writing/tags/${slug}`)}>
+                {tag} <span class="muted">({count})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {years.map((y) => (
+      <section aria-labelledby={`y${y}`}>
+        <h2 id={`y${y}`}>{y}</h2>
+        <PostList
+          posts={posts.filter((p) => year(p.data.pubDate) === y)}
+          locale={locale}
+          headingLevel="h3"
+        />
+      </section>
+    ))}
   </div>
 </BaseLayout>
+
+<style>
+  .tag-list a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .tag-list a:hover {
+    text-decoration: underline;
+  }
+</style>

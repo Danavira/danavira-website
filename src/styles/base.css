@@ -166,3 +166,32 @@ pre {
     transition: none !important;
   }
 }
+
+/* Print (and the generated cv.pdf): light colors whatever the screen scheme,
+   no site chrome. Page-specific print rules live with the page. */
+@page {
+  size: A4;
+  margin: 14mm 14mm 16mm;
+}
+
+@media print {
+  :root {
+    color-scheme: light;
+    --bg: #fff;
+    --surface: #fff;
+    --text: #000;
+    --text-muted: #3d4148;
+    --border: #c4c7cd;
+    --accent: #000;
+  }
+
+  .site-header,
+  .site-footer,
+  .skip-link {
+    display: none;
+  }
+
+  main {
+    padding-top: 0;
+  }
+}

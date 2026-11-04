@@ -8,3 +8,11 @@
 
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Sveltia CMS. Mirrors nginx/admin-headers.inc. "! Content-Security-Policy"
+# drops the site-wide CSP first; two CSP headers would intersect and block it.
+/admin/*
+  ! Content-Security-Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' blob: data: https://avatars.githubusercontent.com https://raw.githubusercontent.com; media-src blob:; frame-src blob:; connect-src 'self' blob: data: https://api.github.com https://raw.githubusercontent.com https://www.githubstatus.com; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache

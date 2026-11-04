@@ -1,0 +1,145 @@
+# Certifications shown on /certifications/, the CV and the home page.
+# Editable in the CMS at /admin/ (Certifications).
+#
+# image: preview, relative to this file. pdf: path under public/, offered as a
+# download. Leave either out when there is nothing that can be shown publicly
+# (the TOEIC report carries an ID number and date of birth, so it has neither).
+# Dates are when the credential was earned; only month and year are displayed.
+
+- id: kubestronaut
+  name: CNCF Kubestronaut
+  issuer: Cloud Native Computing Foundation
+  category: kubernetes
+  earned: 2026-05-10
+  summary: Held all five CNCF Kubernetes certifications at once. Among the first 26 Kubestronauts in Indonesia.
+  image: ../assets/certs/kubestronaut.png
+  imageAlt: The Kubestronaut badge, a blue astronaut helmet with the Kubernetes wheel on the visor.
+  featured: true
+
+- id: cks
+  name: Certified Kubernetes Security Specialist (CKS)
+  issuer: The Linux Foundation, CNCF
+  category: kubernetes
+  earned: 2026-05-10
+  credentialId: LF-hqe8fu0yki
+  verifyUrl: https://training.linuxfoundation.org/certification/verify
+  image: ../assets/certs/cks.png
+  imageAlt: CKS certificate issued to Yasa Danavira, completed May 10, 2026.
+  pdf: /certs/cks.pdf
+  featured: true
+
+- id: cka
+  name: Certified Kubernetes Administrator (CKA)
+  issuer: The Linux Foundation, CNCF
+  category: kubernetes
+  earned: 2026-04-19
+  credentialId: LF-zpxqrihdfr
+  verifyUrl: https://training.linuxfoundation.org/certification/verify
+  image: ../assets/certs/cka.png
+  imageAlt: CKA certificate issued to Yasa Danavira, completed April 19, 2026.
+  pdf: /certs/cka.pdf
+  featured: true
+
+- id: ckad
+  name: Certified Kubernetes Application Developer (CKAD)
+  issuer: The Linux Foundation, CNCF
+  category: kubernetes
+  earned: 2026-03-21
+  credentialId: LF-1lsxh6k7jt
+  verifyUrl: https://training.linuxfoundation.org/certification/verify
+  image: ../assets/certs/ckad.png
+  imageAlt: CKAD certificate issued to Yasa Danavira, completed March 21, 2026.
+  pdf: /certs/ckad.pdf
+
+- id: kcsa
+  name: Kubernetes and Cloud Native Security Associate (KCSA)
+  issuer: The Linux Foundation, CNCF
+  category: kubernetes
+  earned: 2026-05-02
+  credentialId: LF-d8a9hmxevw
+  verifyUrl: https://training.linuxfoundation.org/certification/verify
+  image: ../assets/certs/kcsa.png
+  imageAlt: KCSA certificate issued to Yasa Danavira, completed May 2, 2026.
+  pdf: /certs/kcsa.pdf
+
+- id: kcna
+  name: Kubernetes and Cloud Native Associate (KCNA)
+  issuer: The Linux Foundation, CNCF
+  category: kubernetes
+  earned: 2026-03-13
+  credentialId: LF-o58j5al26l
+  verifyUrl: https://training.linuxfoundation.org/certification/verify
+  image: ../assets/certs/kcna.png
+  imageAlt: KCNA certificate issued to Yasa Danavira, completed March 13, 2026.
+  pdf: /certs/kcna.pdf
+
+- id: aws-saa
+  name: AWS Certified Solutions Architect – Associate (SAA-C03)
+  issuer: Amazon Web Services
+  category: cloud
+  earned: 2026-09-25
+  expires: 2029-09-25
+  credentialId: 32b418351655497794c7fdbc7fff009a
+  verifyUrl: https://aws.amazon.com/verification
+  image: ../assets/certs/aws-saa.png
+  imageAlt: AWS Certified Solutions Architect Associate certificate issued to Yasa Danavira Tjoe, September 25, 2026.
+  pdf: /certs/aws-saa.pdf
+  featured: true
+
+- id: aws-dea
+  name: AWS Certified Data Engineer – Associate (DEA-C01)
+  issuer: Amazon Web Services
+  category: cloud
+  earned: 2026-02-08
+  expires: 2029-02-08
+  credentialId: 3c6826c601ed4e3bb52b425be6b47f37
+  verifyUrl: https://aws.amazon.com/verification
+  image: ../assets/certs/aws-dea.png
+  imageAlt: AWS Certified Data Engineer Associate certificate issued to Yasa Danavira Tjoe, February 8, 2026.
+  pdf: /certs/aws-dea.pdf
+  featured: true
+
+- id: toeic
+  name: TOEIC Listening and Reading, 980
+  issuer: ETS
+  category: language
+  earned: 2026-05-15
+  expires: 2028-05-15
+  summary: Listening 495, reading 485, out of 990. Full score report available on request.
+
+- id: jlpt-n3
+  name: JLPT N3
+  issuer: Japan Foundation, JEES
+  category: language
+  earned: 2026-07-05
+  summary: Japanese-Language Proficiency Test, July 2026 session. Preparing for N2.
+
+- id: hackerrank-sql-advanced
+  name: SQL (Advanced)
+  issuer: HackerRank
+  category: skills
+  earned: 2025-12-07
+  credentialId: 0B66E01F20A2
+  verifyUrl: https://www.hackerrank.com/certificates/0b66e01f20a2
+  image: ../assets/certs/hackerrank-sql-advanced.png
+  imageAlt: HackerRank SQL (Advanced) certificate presented to Yasa Danavira, earned December 7, 2025.
+
+- id: hackerrank-sql-intermediate
+  name: SQL (Intermediate)
+  issuer: HackerRank
+  category: skills
+  earned: 2025-12-06
+  credentialId: F5B2D99BBE1D
+  verifyUrl: https://www.hackerrank.com/certificates/f5b2d99bbe1d
+  image: ../assets/certs/hackerrank-sql-intermediate.png
+  imageAlt: HackerRank SQL (Intermediate) certificate presented to Yasa Danavira, earned December 6, 2025.
+
+- id: hackerrank-sql-basic
+  name: SQL (Basic)
+  issuer: HackerRank
+  category: skills
+  earned: 2025-12-06
+  credentialId: 170DDA4B67BF
+  verifyUrl: https://www.hackerrank.com/certificates/170dda4b67bf
+  image: ../assets/certs/hackerrank-sql-basic.png
+  imageAlt: HackerRank SQL (Basic) certificate presented to Yasa Danavira, earned December 6, 2025.
