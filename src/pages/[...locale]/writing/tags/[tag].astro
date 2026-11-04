@@ -1,0 +1,52 @@
+---
+import PostList from '../../../../components/PostList.astro';
+import {
+  alternatesFor,
+  localeFromParam,
+  localeParam,
+  localizedPath,
+  locales,
+  t,
+  type Locale,
+} from '../../../../i18n';
+import BaseLayout from '../../../../layouts/BaseLayout.astro';
+import { getPublishedPosts, getTags, tagSlug } from '../../../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = [];
+  for (const locale of locales) {
+    for (const { slug, tag } of await getTags(locale)) {
+      paths.push({ params: { locale: localeParam(locale), tag: slug }, props: { tag } });
+    }
+  }
+  return paths;
+}
+
+const { tag } = Astro.props;
+const locale = localeFromParam(Astro.params.locale);
+const dict = t(locale);
+const slug = tagSlug(tag);
+const posts = (await getPublishedPosts(locale)).filter((p) =>
+  p.data.tags.some((x) => tagSlug(x) === slug),
+);
+// The same tag only has a counterpart page in locales that also use it.
+const have: Locale[] = [];
+for (const l of locales) {
+  if ((await getTags(l)).some((x) => x.slug === slug)) have.push(l);
+}
+---
+
+<BaseLayout
+  title={dict.writingIndex.taggedTitle(tag)}
+  description={dict.writingIndex.taggedDescription(tag)}
+  locale={locale}
+  alternates={alternatesFor(have, `writing/tags/${slug}`)}
+>
+  <div class="container">
+    <h1>{dict.writingIndex.taggedTitle(tag)}</h1>
+    <p>
+      <a href={localizedPath(locale, 'writing')}>{dict.writingIndex.allPosts}</a>
+    </p>
+    <PostList posts={posts} locale={locale} />
+  </div>
+</BaseLayout>

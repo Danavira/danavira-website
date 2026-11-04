@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/build-cv-pdf.mjs && node scripts/copy-cms.mjs",
     "preview": "astro preview",
     "check": "astro check",
     "lint": "eslint . && node scripts/lint-copy.mjs",
@@ -29,6 +29,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
     "@eslint/js": "^10.0.1",
+    "@sveltia/cms": "0.258.1",
     "eslint": "^10.13.0",
     "eslint-plugin-astro": "^3.2.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -37,7 +38,8 @@
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.72.0"
+    "typescript-eslint": "^8.72.0",
+    "yaml": "^2.9.1"
   },
   "pnpm": {
     "peerDependencyRules": {

@@ -97,3 +97,60 @@ export function formatDate(date: Date, locale: Locale): string {
     timeZone: 'Asia/Tokyo',
   });
 }
+
+/** Display order of certification groups. Within a group, file order wins. */
+export const certCategories = ['kubernetes', 'cloud', 'language', 'skills'] as const;
+
+const byOrder = (a: { data: { order: number } }, b: { data: { order: number } }) =>
+  a.data.order - b.data.order;
+
+/** Entries in the order they appear in src/data/certifications.yaml. */
+export async function getCertifications() {
+  return (await getCollection('certifications')).sort(byOrder);
+}
+
+export async function getExperience(section: 'work' | 'project') {
+  return (await getCollection('experience', (e) => e.data.section === section)).sort(byOrder);
+}
+
+/** A src/data/ list (skills, education) in file order. */
+export async function getOrdered<C extends 'skills' | 'education'>(
+  collection: C,
+): Promise<CollectionEntry<C>[]> {
+  return ((await getCollection(collection)) as CollectionEntry<C>[]).sort(byOrder);
+}
+
+/** `2026-02` or a Date, shown as "Feb 2026" / "2026年2月". en-US rather than
+ *  en-GB for English, which abbreviates September as "Sept". */
+export function formatMonth(value: string | Date, locale: Locale): string {
+  const date = typeof value === 'string' ? new Date(`${value}-01T00:00:00+09:00`) : value;
+  return date.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
+    year: 'numeric',
+    month: 'short',
+    timeZone: 'Asia/Tokyo',
+  });
+}
+
+/** URL segment for a tag: lowercase, spaces and punctuation collapsed to `-`. */
+export function tagSlug(tag: string): string {
+  return tag
+    .normalize('NFKC')
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/** Every tag used by a published post in this locale, with its post count. */
+export async function getTags(locale: Locale) {
+  const counts = new Map<string, { tag: string; count: number }>();
+  for (const post of await getPublishedPosts(locale)) {
+    for (const tag of post.data.tags) {
+      const slug = tagSlug(tag);
+      const seen = counts.get(slug);
+      counts.set(slug, { tag: seen?.tag ?? tag, count: (seen?.count ?? 0) + 1 });
+    }
+  }
+  return [...counts.entries()]
+    .map(([slug, v]) => ({ slug, ...v }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+}

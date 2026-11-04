@@ -1,0 +1,34 @@
+# Skill groups for /cv/ and cv.pdf, in display order. Editable in the CMS.
+
+- id: data
+  label: Languages and data
+  items:
+    [
+      Python,
+      SQL,
+      Bash,
+      Spark,
+      Airflow,
+      PostgreSQL,
+      ClickHouse,
+      MinIO,
+      Power BI,
+      Tableau,
+      Power Query,
+    ]
+
+- id: delivery
+  label: DevOps and CI/CD
+  items: [Argo CD, Helm, GitHub Actions, GHCR, GitOps workflows]
+
+- id: observability-security
+  label: Observability and security
+  items: [Loki, Trivy, Kyverno, Seccomp, Fail2Ban, Infisical]
+
+- id: infrastructure
+  label: Infrastructure and cloud
+  items: [Kubernetes, Docker, Linux, AWS, Huawei Cloud]
+
+- id: languages
+  label: Spoken languages
+  items: [English (native), Japanese (conversational, JLPT N3)]

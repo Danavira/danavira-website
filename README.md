@@ -95,9 +95,26 @@ Exactly one project per locale may set `featured: true`. It renders at `/homelab
 
 Alt text is required everywhere: the schema rejects an empty `alt`, and `lint-copy` rejects MDX images without one.
 
-## Adding a post
+## Writing a post (CMS, no code)
 
-1. Create `src/content/writing/en/<slug>.mdx`:
+Posts, certifications, the resume and the home page copy are editable in the browser at **https://danavira.com/admin/** (Sveltia CMS). Every save is a commit to `main`, which the Image workflow turns into a new image.
+
+One-time sign-in setup:
+
+1. On GitHub, create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new): repository access **Only select repositories**, `Danavira/danavira-website`; permission **Contents: Read and write** (Metadata read-only is added automatically). Pick an expiry you are happy to renew.
+2. Open `/admin/`, choose **Sign In Using Access Token** and paste it. The token stays in that browser's local storage; it is never sent anywhere but `api.github.com`.
+
+Writing:
+
+1. **Blog posts**, then **New Blog post**. Fill in title, description (at most 200 characters), tags, and the body. Images dropped into the body or the cover field are stored in `src/assets/writing/` and optimized at build time.
+2. New posts start with **Draft** ticked. Saving a draft commits it but keeps it off the site, RSS and sitemap.
+3. To publish, untick **Draft** and save.
+
+The build rejects em dashes and images without alt text. If a save does not show up, check the Image workflow run in GitHub Actions for the error.
+
+## Adding a post (by hand)
+
+1. Create `src/content/writing/en/<slug>.md` (or `.mdx` to use components):
 
    ```yaml
    ---
@@ -105,13 +122,14 @@ Alt text is required everywhere: the schema rejects an empty `alt`, and `lint-co
    description: One sentence summary.
    pubDate: 2026-11-01
    updatedDate: 2026-11-05 # optional
-   tags: [kubernetes]
+   tags: [Kubernetes]
+   cover: { src: ../../../assets/writing/<file>.png, alt: What the image shows } # optional
    draft: true
    ---
    ```
 
 2. While `draft: true`, the post shows in `pnpm dev` only. It is left out of the build, RSS, sitemap and nav.
-3. Remove `draft: true` to publish. The Writing nav link, the home page section and `/rss.xml` appear once at least one post is published.
+3. Remove `draft: true` to publish. The Blog nav link, the home page section and `/rss.xml` appear once at least one post is published. `/writing/` groups posts by year and every tag gets `/writing/tags/<tag>/`.
 
 ## Adding a Japanese translation
 
@@ -124,15 +142,25 @@ Japanese pages exist only where a Japanese source file exists. Nothing is machin
 
 Start with `src/content/pages/ja/home.mdx`: it turns on `/ja/`. Interface labels (nav, buttons) are in `src/i18n/ja.ts`; review them before publishing the first Japanese page. Where a Japanese page does not exist, Japanese nav links fall back to the English page.
 
-## Replacing the CV
+## The resume and certifications
 
-Replace `public/cv.pdf` with a file of the same name. The `/cv/` page links to it and embeds it. The intro text above it is in `src/content/pages/en/cv.mdx`.
+`/cv/` is built from data, and `pnpm build` prints that page to `/cv.pdf` with headless Chromium (`scripts/build-cv-pdf.mjs`), so the page and the PDF always match. There is no PDF to replace by hand.
 
-Never put a phone number or street address in the PDF metadata or the site.
+| What                                     | Where                                                |
+| ---------------------------------------- | ---------------------------------------------------- |
+| Summary paragraph                        | `src/content/pages/en/cv.mdx`                        |
+| Roles and selected projects              | `src/data/experience.yaml`                           |
+| Skills, education                        | `src/data/skills.yaml`, `src/data/education.yaml`    |
+| Certifications (also `/certifications/`) | `src/data/certifications.yaml`                       |
+| Certificate previews and PDFs            | `src/assets/certs/<id>.png`, `public/certs/<id>.pdf` |
+
+All of these are editable in the CMS too. List order in each file is display order.
+
+Never publish a document that shows an ID number, date of birth, phone number or street address. The TOEIC score report has an ID number and date of birth, so it is listed by score only. `docs/` (git-ignored) holds the originals.
 
 ## Site details
 
-Name, job title, links and certifications live in `src/site.config.ts`. They feed the header, footer, home page and the JSON-LD `Person` schema.
+Name, job title, email, links and work authorization live in `src/site.config.ts`. They feed the header, footer, contact page, CV and the JSON-LD `Person` schema.
 
 OG images are generated per page at build time (`src/pages/og/[...route].ts`). They use a subset of Noto Sans JP (`src/assets/fonts/`, SIL Open Font License) so Japanese titles render; the font is never sent to browsers. To rebuild it:
 

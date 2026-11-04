@@ -1,8 +1,16 @@
 ---
 import { render } from 'astro:content';
-import { alternatesFor, localeFromParam, localeParam, t } from '../../i18n';
+import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../i18n';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPage, pageLocales } from '../../lib/content';
+import {
+  formatMonth,
+  getCertifications,
+  getExperience,
+  getOrdered,
+  getPage,
+  pageLocales,
+} from '../../lib/content';
+import { site } from '../../site.config';
 import '../../styles/prose.css';
 
 export async function getStaticPaths() {
@@ -14,7 +22,19 @@ const dict = t(locale);
 const page = await getPage(locale, 'cv');
 if (!page) throw new Error(`pages/${locale}/cv.mdx not found`);
 const { Content } = await render(page);
+
+// scripts/build-cv-pdf.mjs prints this page to /cv.pdf after the build, so the
+// PDF and the page can never disagree. Print styles at the bottom shape it.
 const pdf = '/cv.pdf';
+const work = await getExperience('work');
+const projects = await getExperience('project');
+const certs = await getCertifications();
+const skills = await getOrdered('skills');
+const education = await getOrdered('education');
+
+const range = (start: string, end?: string) =>
+  `${formatMonth(start, locale)} – ${end ? formatMonth(end, locale) : dict.cv.present}`;
+const bare = (url: string) => url.replace(/^https:\/\/(www\.)?/, '');
 ---
 
 <BaseLayout
@@ -23,41 +43,314 @@ const pdf = '/cv.pdf';
   locale={locale}
   alternates={alternatesFor(await pageLocales('cv'), 'cv')}
 >
-  <div class="container wide">
-    <h1>{page.data.title}</h1>
-    <div class="prose intro">
-      <Content />
-    </div>
-    <p>
-      <a class="download" href={pdf} download>
+  <article class="container wide cv">
+    <header class="cv-header">
+      <div>
+        <h1>{site.name}</h1>
+        <p class="role">{site.jobTitle}</p>
+        <ul class="contact">
+          <li>{site.location}, Japan</li>
+          <li>
+            <a href={`mailto:${site.email}`}>{site.email}</a>
+          </li>
+          <li>
+            <a href={site.github}>{bare(site.github)}</a>
+          </li>
+          <li>
+            <a href={site.linkedin}>{bare(site.linkedin)}</a>
+          </li>
+          <li class="print-only">
+            <a href={site.url}>{bare(site.url)}</a>
+          </li>
+        </ul>
+      </div>
+      <a class="download no-print" href={pdf} download>
         {dict.cv.download}
       </a>
-    </p>
-    <!-- Mobile browsers mostly refuse to embed PDFs, which is why the download
-         link above comes first and the fallback repeats it. -->
-    <object class="pdf" data={pdf} type="application/pdf" title={dict.cv.embedTitle}>
-      <p>
-        <a href={pdf}>{dict.cv.download}</a>
-      </p>
-    </object>
-  </div>
+    </header>
+
+    <div class="prose summary">
+      <Content />
+    </div>
+
+    <section aria-labelledby="experience">
+      <h2 id="experience">{dict.cv.experience}</h2>
+      {work.map(({ data }) => (
+        <div class="entry">
+          <div class="entry-head">
+            <h3>
+              {data.role} <span class="at">@ {data.org}</span>
+            </h3>
+            <span class="dates">{range(data.start, data.end)}</span>
+          </div>
+          {(data.orgNote || data.location || data.note) && (
+            <p class="meta">
+              {[data.orgNote, data.location, data.note].filter(Boolean).join('. ')}
+            </p>
+          )}
+          <ul>
+            {data.bullets.map((b) => (
+              <li>{b}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+
+    {projects.length > 0 && (
+      <section aria-labelledby="projects">
+        <h2 id="projects">{dict.cv.projects}</h2>
+        {projects.map(({ data }) => (
+          <div class="entry">
+            <div class="entry-head">
+              <h3>
+                {data.role}
+                {data.link && (
+                  <>
+                    {' '}
+                    <span class="at">
+                      · <a href={data.link}>{bare(data.link)}</a>
+                    </span>
+                  </>
+                )}
+              </h3>
+              <span class="dates">{range(data.start, data.end)}</span>
+            </div>
+            <ul>
+              {data.bullets.map((b) => (
+                <li>{b}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    )}
+
+    <section aria-labelledby="certifications">
+      <h2 id="certifications">{dict.cv.certifications}</h2>
+      <ul class="certs">
+        {certs.map(({ id, data }) => (
+          <li>
+            <a href={`${localizedPath('en', 'certifications')}#${id}`}>{data.name}</a>
+            <span class="muted">
+              {' '}
+              · {data.issuer} · {formatMonth(data.earned, locale)}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section aria-labelledby="skills">
+      <h2 id="skills">{dict.cv.skills}</h2>
+      <dl class="skills">
+        {skills.map(({ data }) => (
+          <>
+            <dt>{data.label}</dt>
+            <dd>{data.items.join(', ')}</dd>
+          </>
+        ))}
+      </dl>
+    </section>
+
+    <section aria-labelledby="education">
+      <h2 id="education">{dict.cv.education}</h2>
+      {education.map(({ data }) => (
+        <div class="entry-head">
+          <h3>
+            {data.degree}{' '}
+            <span class="at">
+              · {data.school}
+              {data.location && `, ${data.location}`}
+            </span>
+          </h3>
+          <span class="dates">
+            {dict.cv.graduated} {formatMonth(data.graduated, locale)}
+          </span>
+        </div>
+      ))}
+    </section>
+  </article>
 </BaseLayout>
 
 <style>
-  .intro {
-    max-width: var(--measure);
+  .cv-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+
+  .role {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-2);
+  }
+
+  .contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-4);
+    padding: 0;
+    list-style: none;
+    font-size: 0.95rem;
   }
 
   .download {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .download:hover {
+    background: var(--accent-strong);
+    color: var(--bg);
+  }
+
+  .summary {
+    max-width: var(--measure);
+    margin-top: var(--space-6);
+  }
+
+  h2 {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: var(--space-1);
+  }
+
+  .entry + .entry {
+    margin-top: var(--space-6);
+  }
+
+  .entry-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 var(--space-4);
+  }
+
+  h3 {
+    margin: 0;
+  }
+
+  .at {
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .dates {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .meta {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin: 0 0 var(--space-2);
+  }
+
+  .entry ul {
+    max-width: var(--measure);
+    padding-left: 1.2rem;
+  }
+
+  .entry li + li {
+    margin-top: var(--space-1);
+  }
+
+  .certs {
+    padding-left: 1.2rem;
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: var(--space-2) var(--space-6);
+  }
+
+  .skills dt {
     font-weight: 600;
   }
 
-  .pdf {
-    display: block;
-    width: 100%;
-    height: min(80vh, 70rem);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-top: var(--space-4);
+  .skills dd {
+    margin: 0;
+  }
+
+  .print-only {
+    display: none;
+  }
+
+  /* Print, and therefore cv.pdf: black on white, no site chrome, tighter
+     spacing so it fits on two A4 pages. */
+  @media print {
+    .cv {
+      font-size: 9.5pt;
+      line-height: 1.4;
+      max-width: none;
+      padding: 0;
+    }
+
+    .no-print {
+      display: none;
+    }
+
+    .print-only {
+      display: list-item;
+    }
+
+    h1 {
+      font-size: 20pt;
+      margin: 0;
+    }
+
+    .role {
+      font-size: 11pt;
+      margin: 0 0 4pt;
+    }
+
+    h2 {
+      font-size: 11.5pt;
+      margin: 12pt 0 6pt;
+      break-after: avoid;
+    }
+
+    h3 {
+      font-size: 10pt;
+    }
+
+    .summary {
+      max-width: none;
+      margin-top: 8pt;
+    }
+
+    .entry {
+      break-inside: avoid;
+    }
+
+    .entry + .entry {
+      margin-top: 8pt;
+    }
+
+    .entry ul {
+      max-width: none;
+      margin: 2pt 0 0;
+    }
+
+    .contact,
+    .dates,
+    .meta {
+      font-size: 9pt;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
   }
 </style>

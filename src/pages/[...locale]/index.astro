@@ -4,7 +4,14 @@ import PostList from '../../components/PostList.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../i18n';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { getPage, getProjects, getPublishedPosts, pageLocales, slugOf } from '../../lib/content';
+import {
+  getCertifications,
+  getPage,
+  getProjects,
+  getPublishedPosts,
+  pageLocales,
+  slugOf,
+} from '../../lib/content';
 import { site } from '../../site.config';
 
 export async function getStaticPaths() {
@@ -22,6 +29,8 @@ const featured = projects.find((p) => p.data.featured);
 const others = projects.filter((p) => !p.data.featured).slice(0, 3);
 const posts = (await getPublishedPosts(locale)).slice(0, 3);
 const cvHref = localizedPath((await pageLocales('cv')).includes(locale) ? locale : 'en', 'cv');
+const certs = await getCertifications();
+const featuredCerts = certs.filter((c) => c.data.featured);
 
 const person = {
   '@context': 'https://schema.org',
@@ -31,9 +40,10 @@ const person = {
   url: site.url,
   homeLocation: { '@type': 'Place', name: site.location },
   alumniOf: { '@type': 'CollegeOrUniversity', name: site.education.school },
-  hasCredential: site.credentials.map((name) => ({
+  hasCredential: certs.map(({ data }) => ({
     '@type': 'EducationalOccupationalCredential',
-    name,
+    name: data.name,
+    recognizedBy: { '@type': 'Organization', name: data.issuer },
   })),
   sameAs: [site.github, site.linkedin],
 };
@@ -78,13 +88,20 @@ const person = {
         {dict.home.credentials}
       </h2>
       <ul class="tag-list credentials">
-        {site.credentials.map((c) => (
-          <li>{c}</li>
+        {featuredCerts.map(({ id, data }) => (
+          <li>
+            <a href={`${localizedPath('en', 'certifications')}#${id}`}>
+              {data.name.replace(/ \(.*\)$/, '')}
+            </a>
+          </li>
         ))}
         <li>
           {site.education.degree}, {site.education.school}
         </li>
       </ul>
+      <p>
+        <a href={localizedPath('en', 'certifications')}>{dict.home.allCertifications}</a>
+      </p>
     </section>
 
     {featured && (
@@ -170,6 +187,16 @@ const person = {
 
   .credentials {
     margin-top: var(--space-6);
+  }
+
+  .credentials a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .credentials a:hover {
+    color: var(--text);
+    text-decoration: underline;
   }
 
   .grid {

@@ -1,6 +1,7 @@
 import { defineCollection, type SchemaContext } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { parse } from 'yaml';
 
 // Every image carries alt text. An empty string fails the build, so a diagram
 // or cover can never ship without a description.
@@ -31,8 +32,10 @@ const projects = defineCollection({
     }),
 });
 
+// .md as well as .mdx: the CMS at /admin/ writes plain Markdown, where a stray
+// `{` or `<` in prose cannot break the build the way it does in MDX.
 const writing = defineCollection({
-  loader: glob({ pattern: '**/*.mdx', base: './src/content/writing' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
   schema: (ctx) =>
     z.object({
       title: z.string(),
@@ -58,4 +61,89 @@ const pages = defineCollection({
   }),
 });
 
-export const collections = { projects, writing, pages };
+// Data for /certifications/, /cv/ and the generated cv.pdf. Not localized: names,
+// dates and IDs read the same in every language.
+// getCollection() does not keep file order, so each entry records its position
+// in the list. Reordering a list in the CMS therefore reorders the site.
+const ordered = (path: string) =>
+  file(path, {
+    parser: (text) =>
+      (parse(text) as Record<string, unknown>[]).map((entry, order) => ({ ...entry, order })),
+  });
+const order = z.number().int();
+
+const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'use YYYY-MM');
+
+const certifications = defineCollection({
+  loader: ordered('src/data/certifications.yaml'),
+  schema: ({ image }) =>
+    z
+      .object({
+        order,
+        name: z.string(),
+        issuer: z.string(),
+        category: z.enum(['kubernetes', 'cloud', 'language', 'skills']),
+        earned: z.coerce.date(),
+        expires: z.coerce.date().optional(),
+        summary: z.string().optional(),
+        credentialId: z.string().optional(),
+        verifyUrl: z.url().optional(),
+        credlyUrl: z.url().optional(),
+        image: image().optional(),
+        imageAlt: z.string().trim().min(1).optional(),
+        // Path under public/, e.g. /certs/cka.pdf.
+        pdf: z
+          .string()
+          .regex(/^\/certs\/[\w-]+\.pdf$/)
+          .optional(),
+        // Shown on the home page and at the top of the CV.
+        featured: z.boolean().default(false),
+      })
+      .refine((c) => !c.image || c.imageAlt, {
+        message: 'imageAlt is required when image is set',
+        path: ['imageAlt'],
+      }),
+});
+
+const experience = defineCollection({
+  loader: ordered('src/data/experience.yaml'),
+  schema: z.object({
+    order,
+    section: z.enum(['work', 'project']),
+    role: z.string(),
+    org: z.string(),
+    orgNote: z.string().optional(),
+    location: z.string().optional(),
+    start: yearMonth,
+    end: yearMonth.optional(),
+    note: z.string().optional(),
+    link: z.url().optional(),
+    bullets: z.array(z.string()).min(1),
+  }),
+});
+
+const skills = defineCollection({
+  loader: ordered('src/data/skills.yaml'),
+  schema: z.object({ order, label: z.string(), items: z.array(z.string()).min(1) }),
+});
+
+const education = defineCollection({
+  loader: ordered('src/data/education.yaml'),
+  schema: z.object({
+    order,
+    degree: z.string(),
+    school: z.string(),
+    location: z.string().optional(),
+    graduated: yearMonth,
+  }),
+});
+
+export const collections = {
+  projects,
+  writing,
+  pages,
+  certifications,
+  experience,
+  skills,
+  education,
+};

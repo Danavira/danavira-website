@@ -23,6 +23,7 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine
 
 COPY nginx/site.conf /etc/nginx/conf.d/default.conf
 COPY nginx/security-headers.inc /etc/nginx/conf.d/security-headers.inc
+COPY nginx/admin-headers.inc /etc/nginx/conf.d/admin-headers.inc
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Fail the build on a config nginx would refuse at startup, rather than
