@@ -25,6 +25,10 @@ COPY nginx/site.conf /etc/nginx/conf.d/default.conf
 COPY nginx/security-headers.inc /etc/nginx/conf.d/security-headers.inc
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Fail the build on a config nginx would refuse at startup, rather than
+# shipping an image whose pods crash-loop.
+RUN nginx -t
+
 # The base image already ends on USER 101; repeated so scanners and readers see it.
 USER 101:101
 EXPOSE 8080

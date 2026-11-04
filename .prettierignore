@@ -3,3 +3,6 @@ dist/
 pnpm-lock.yaml
 src/assets/fonts/
 public/cv.pdf
+# Prettier infers the HTML parser for .inc and reflows nginx directives into
+# prose, which nginx then refuses to load.
+nginx/
