@@ -53,7 +53,7 @@ export const ja: Dictionary = {
   },
   writingIndex: {
     title: 'ブログ',
-    description: 'プラットフォームエンジニアリング、Kubernetes、データ基盤についてのメモ。',
+    description: 'テック、仕事、そして日本での暮らしについて。',
     tags: 'タグ',
     allPosts: 'すべての記事',
     taggedTitle: (tag: string) => `タグ「${tag}」の記事`,

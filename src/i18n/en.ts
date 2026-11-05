@@ -57,7 +57,7 @@ export const en = {
   },
   writingIndex: {
     title: 'Blog',
-    description: 'Notes on platform engineering, Kubernetes and data infrastructure.',
+    description: 'Writing on tech, work and life in Japan.',
     tags: 'Tags',
     allPosts: 'All posts',
     taggedTitle: (tag: string) => `Posts tagged “${tag}”`,
