@@ -3,6 +3,13 @@ import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { parse } from 'yaml';
 
+// The CMS saves a cleared optional date as '' (or null). z.coerce.date() turns
+// that into an Invalid Date and fails the build, so treat blanks as absent.
+const optionalDate = z.preprocess(
+  (v) => (v === '' || v === null ? undefined : v),
+  z.coerce.date().optional(),
+);
+
 // Every image carries alt text. An empty string fails the build, so a diagram
 // or cover can never ship without a description.
 const figure = ({ image }: SchemaContext) =>
@@ -41,7 +48,7 @@ const writing = defineCollection({
       title: z.string(),
       description: z.string().max(200),
       pubDate: z.coerce.date(),
-      updatedDate: z.coerce.date().optional(),
+      updatedDate: optionalDate,
       tags: z.array(z.string()).default([]),
       cover: figure(ctx).optional(),
       // Drafts render in `pnpm dev` only. They never reach the build, RSS,

@@ -17,6 +17,11 @@ backend:
     uploadMedia: 'content: upload "{{path}}"'
     deleteMedia: 'content: delete "{{path}}"'
 
+# Leave blank optional fields out of the frontmatter instead of writing
+# `updatedDate: ''`, which the content schema would reject.
+output:
+  omit_empty_optional_fields: true
+
 site_url: https://danavira.com
 display_url: https://danavira.com
 

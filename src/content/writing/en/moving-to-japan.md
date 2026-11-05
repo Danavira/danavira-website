@@ -2,7 +2,6 @@
 title: Moving To Japan
 description: My experience after having moved to Japan with the J-Find visa at 25 years old.
 pubDate: 2026-11-05
-updatedDate: ''
 tags: []
 cover:
   src: ../../../assets/writing/IMG_1164.webp
