@@ -12,7 +12,7 @@ const dict = t(Astro.props.locale);
 <footer class="site-footer">
   <div class="container wide row muted">
     <span>
-      {site.name}, {site.location}
+      &copy; {new Date().getFullYear()} {site.name}. {site.location}.
     </span>
     <ul>
       <li>
@@ -34,22 +34,22 @@ const dict = t(Astro.props.locale);
 <style>
   .site-footer {
     border-top: 1px solid var(--border);
-    margin-top: var(--space-16);
-    font-size: 0.9rem;
+    margin-top: var(--space-24);
+    font-size: 0.8rem;
   }
 
   .row {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    gap: var(--space-3);
-    padding-block: var(--space-6);
+    gap: var(--space-3) var(--space-6);
+    padding-block: var(--space-8);
   }
 
   ul {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-4);
+    gap: var(--space-2) var(--space-6);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -57,5 +57,10 @@ const dict = t(Astro.props.locale);
 
   a {
     color: var(--text-muted);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--text);
   }
 </style>

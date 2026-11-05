@@ -16,37 +16,55 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
-  font-size: 1.0625rem;
-  line-height: 1.65;
+  font-size: 1rem;
+  line-height: 1.7;
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-wrap: break-word;
 }
 
 :lang(ja) body,
 body:lang(ja) {
   font-family: var(--font-sans-ja);
-  line-height: 1.8;
+  line-height: 1.85;
   line-break: strict;
+}
+
+::selection {
+  background: #111;
+  color: #fff;
 }
 
 h1,
 h2,
 h3 {
-  line-height: 1.25;
   text-wrap: balance;
 }
 
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+
 h1 {
-  font-size: clamp(2rem, 1.5rem + 2.5vw, 2.75rem);
-  margin: 0 0 var(--space-3);
+  font-size: clamp(2.5rem, 1.75rem + 3vw, 3.75rem);
+  margin: 0 0 var(--space-4);
 }
 
 h2 {
-  font-size: 1.5rem;
-  margin: var(--space-12) 0 var(--space-4);
+  font-size: clamp(1.6rem, 1.4rem + 0.8vw, 2rem);
+  margin: var(--space-16) 0 var(--space-4);
 }
 
 h3 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  line-height: 1.35;
   margin: var(--space-8) 0 var(--space-2);
 }
 
@@ -57,18 +75,23 @@ ol {
 }
 
 a {
-  color: var(--accent);
-  text-underline-offset: 0.2em;
+  color: var(--text);
+  text-decoration-line: underline;
+  text-decoration-color: var(--link-underline);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: text-decoration-color 0.2s var(--ease);
 }
 
 a:hover {
   color: var(--accent-strong);
+  text-decoration-color: currentColor;
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: 2px;
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius);
 }
 
 img,
@@ -78,32 +101,30 @@ picture {
   height: auto;
 }
 
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin: var(--space-12) 0;
+}
+
 code,
 pre {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.875em;
 }
 
 :not(pre) > code {
   background: var(--code-bg);
   padding: 0.1em 0.35em;
-  border-radius: 0.25rem;
+  border-radius: var(--radius);
 }
 
 pre {
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-6);
   border-radius: var(--radius);
   overflow-x: auto;
   border: 1px solid var(--border);
-}
-
-/* Shiki dual themes: swap to the dark token colors under the dark scheme. */
-@media (prefers-color-scheme: dark) {
-  .astro-code,
-  .astro-code span {
-    color: var(--shiki-dark) !important;
-    background-color: var(--shiki-dark-bg) !important;
-  }
+  line-height: 1.6;
 }
 
 .container {
@@ -121,6 +142,66 @@ pre {
   color: var(--text-muted);
 }
 
+/* Small uppercase label used above sections and in metadata rows. */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* A text link with a trailing arrow that nudges on hover. */
+.arrow-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.arrow-link::after {
+  content: '\2192';
+  transition: transform 0.2s var(--ease);
+}
+
+.arrow-link:hover::after {
+  transform: translateX(3px);
+}
+
+/* Buttons: one solid, one outlined. Square corners, no shadows. */
+.button {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid var(--text);
+  border-radius: var(--radius);
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+
+.button:hover {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.button.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.button.ghost:hover {
+  border-color: var(--text);
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -135,8 +216,8 @@ pre {
   left: var(--gutter);
   top: -3rem;
   padding: var(--space-2) var(--space-3);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--bg);
+  border: 1px solid var(--text);
   z-index: 10;
 }
 
@@ -144,19 +225,22 @@ pre {
   top: var(--space-2);
 }
 
+/* Tags and stacks: quiet text, no pills. */
 .tag-list {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
   padding: 0;
   list-style: none;
 }
 
 .tag-list li {
-  font-size: 0.85rem;
-  padding: 0.1rem 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  padding: 0.15rem 0.55rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius);
   color: var(--text-muted);
 }
 

@@ -36,14 +36,16 @@ export default defineConfig({
   markdown: {
     // Mermaid blocks are left for rehype-mermaid instead of being highlighted.
     syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid', 'math'] },
-    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
+    // Light only, like the rest of the site.
+    shikiConfig: { theme: 'github-light' },
     // remark/rehype pipeline instead of Astro's default Satteri, because
     // rehype-mermaid is a rehype plugin. MDX inherits this processor.
     processor: unified({
       // Renders Mermaid to SVG at build time with headless Chromium, so no
-      // Mermaid code reaches the browser. `dark: true` emits a second SVG that
-      // a <picture> swaps in under prefers-color-scheme: dark.
-      rehypePlugins: [[rehypeMermaid, { strategy: 'img-svg', dark: true }]],
+      // Mermaid code reaches the browser. Light only: the site has no dark mode.
+      rehypePlugins: [
+        [rehypeMermaid, { strategy: 'img-svg', mermaidConfig: { theme: 'neutral' } }],
+      ],
       // SmartyPants turns "---" into an em dash, which the copy rules forbid.
       // Quotes and ellipses are still curled.
       smartypants: { dashes: false },
