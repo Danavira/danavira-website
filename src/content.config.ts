@@ -50,6 +50,30 @@ const writing = defineCollection({
     }),
 });
 
+// Life updates at /journal/: day to day in Tokyo, work, photos. English only.
+// Written in the CMS, which converts uploads to WebP in the browser; that also
+// drops EXIF, including GPS. scripts/lint-images.mjs catches photos added by hand.
+const journal = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/journal' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      date: z.coerce.date(),
+      // A city or neighbourhood, never an address.
+      location: z.string().optional(),
+      photos: z
+        .array(
+          z.object({
+            src: image(),
+            alt: z.string().trim().min(1, 'alt text is required'),
+            caption: z.string().optional(),
+          }),
+        )
+        .default([]),
+      draft: z.boolean().default(false),
+    }),
+});
+
 // Copy for fixed pages (home, cv). A ja/<page>.mdx file is what turns on the
 // Japanese version of that page.
 const pages = defineCollection({
@@ -58,6 +82,8 @@ const pages = defineCollection({
     title: z.string(),
     description: z.string().max(200),
     identity: z.string().optional(),
+    // Home page "About" block. Plain text; a blank line starts a new paragraph.
+    about: z.string().optional(),
   }),
 });
 
@@ -141,6 +167,7 @@ const education = defineCollection({
 export const collections = {
   projects,
   writing,
+  journal,
   pages,
   certifications,
   experience,

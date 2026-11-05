@@ -1,14 +1,21 @@
 ---
+import { Image } from 'astro:assets';
 import { render } from 'astro:content';
+import ClusterMap from '../../components/ClusterMap.astro';
 import PostList from '../../components/PostList.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../i18n';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   getCertifications,
+  getExperience,
+  getJournal,
+  getOrdered,
   getPage,
   getProjects,
   getPublishedPosts,
+  journalExcerpt,
+  journalSlug,
   pageLocales,
   slugOf,
 } from '../../lib/content';
@@ -31,6 +38,34 @@ const posts = (await getPublishedPosts(locale)).slice(0, 3);
 const cvHref = localizedPath((await pageLocales('cv')).includes(locale) ? locale : 'en', 'cv');
 const certs = await getCertifications();
 const featuredCerts = certs.filter((c) => c.data.featured);
+
+// About: paragraphs from the CMS, facts from the same data as the resume so
+// the two never disagree.
+const aboutParagraphs = (page.data.about ?? '')
+  .split(/\n\s*\n/)
+  .map((p) => p.trim())
+  .filter(Boolean);
+const [latest] = await getJournal();
+const latestWhen = latest?.data.date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Asia/Tokyo',
+});
+const currentRole = (await getExperience('work')).find((e) => !e.data.end);
+const spoken = (await getOrdered('skills')).find((s) => s.id === 'languages');
+const facts = [
+  currentRole && {
+    label: dict.home.facts.now,
+    value: `${currentRole.data.role}, ${currentRole.data.org}`,
+  },
+  { label: dict.home.facts.based, value: site.location },
+  {
+    label: dict.home.facts.studied,
+    value: `${site.education.degree}, ${site.education.school}`,
+  },
+  spoken && { label: dict.home.facts.languages, value: spoken.data.items.join(', ') },
+].filter((f): f is { label: string; value: string } => Boolean(f));
 
 const person = {
   '@context': 'https://schema.org',
@@ -110,6 +145,65 @@ const person = {
       </a>
     </section>
 
+    {aboutParagraphs.length > 0 && (
+      <section class="about" aria-labelledby="about">
+        <h2 id="about" class="eyebrow">
+          {dict.home.about}
+        </h2>
+        <div class="about-text">
+          {aboutParagraphs.map((p) => (
+            <p>{p}</p>
+          ))}
+        </div>
+        <div class="about-facts">
+          <dl>
+            {facts.map((f) => (
+              <div>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <a class="arrow-link" href={cvHref}>
+            {dict.home.fullResume}
+          </a>
+        </div>
+      </section>
+    )}
+
+    {latest && (
+      <section aria-labelledby="lately">
+        <div class="section-head">
+          <h2 id="lately">{dict.journal.lately}</h2>
+          <a class="arrow-link" href="/journal/">
+            {dict.journal.all}
+          </a>
+        </div>
+        <article class:list={['lately', { 'has-photo': latest.data.photos.length > 0 }]}>
+          {latest.data.photos[0] && (
+            <a class="lately-photo" href={`/journal/${journalSlug(latest)}/`} tabindex="-1">
+              <Image
+                src={latest.data.photos[0].src}
+                alt={latest.data.photos[0].alt}
+                widths={[480, 800, 1200]}
+                sizes="(min-width: 52rem) 40rem, 100vw"
+              />
+            </a>
+          )}
+          <div>
+            <p class="eyebrow">
+              <time datetime={latest.data.date.toISOString()}>{latestWhen}</time>
+              {latest.data.location && ` / ${latest.data.location}`}
+            </p>
+            <h3>
+              <a href={`/journal/${journalSlug(latest)}/`}>{latest.data.title}</a>
+            </h3>
+            <p class="muted">{journalExcerpt(latest, 220)}</p>
+          </div>
+        </article>
+      </section>
+    )}
+
     {featured && (
       <section aria-labelledby="featured">
         <div class="section-head">
@@ -121,6 +215,7 @@ const person = {
           locale={locale}
           featured
         />
+        <ClusterMap variant="summary" />
       </section>
     )}
 
@@ -248,6 +343,107 @@ const person = {
 
   .credentials .arrow-link {
     white-space: nowrap;
+  }
+
+  .about {
+    display: grid;
+    gap: var(--space-6) var(--space-8);
+    padding-block: var(--space-16) 0;
+  }
+
+  @media (min-width: 52rem) {
+    .about {
+      grid-template-columns: 10rem minmax(0, 1fr) 18rem;
+      gap: var(--space-8) var(--space-12);
+    }
+  }
+
+  .about h2 {
+    margin: 0;
+    line-height: 2.2;
+  }
+
+  .about-text {
+    max-width: var(--measure);
+  }
+
+  .about-text p {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 1.15rem + 0.5vw, 1.55rem);
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+    margin-bottom: var(--space-6);
+  }
+
+  .about-text p + p {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--text-muted);
+  }
+
+  .about-facts dl {
+    margin: 0 0 var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+
+  .about-facts dl div {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .about-facts dt {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .about-facts dd {
+    margin: var(--space-1) 0 0;
+    font-size: 0.925rem;
+  }
+
+  .lately {
+    display: grid;
+    gap: var(--space-6) var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 52rem) {
+    .lately.has-photo {
+      grid-template-columns: 3fr 2fr;
+    }
+  }
+
+  .lately-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  .lately h3 {
+    margin: var(--space-2) 0 var(--space-3);
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.4rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .lately h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .lately h3 a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--link-underline);
   }
 
   .section-head {

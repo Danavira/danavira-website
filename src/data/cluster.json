@@ -1,0 +1,338 @@
+{
+  "takenAt": "2026-11-05T05:17:25.587Z",
+  "source": "https://sky.danavira.com",
+  "kubernetesVersion": "v1.34.5+k3s1",
+  "nodeCount": 3,
+  "podCount": 44,
+  "namespaceCount": 20,
+  "applications": {
+    "total": 19,
+    "synced": 19,
+    "healthy": 18
+  },
+  "networkPolicies": 50,
+  "nodes": [
+    {
+      "name": "danavira-control-plane",
+      "role": "control plane",
+      "pods": 35,
+      "workloads": [
+        {
+          "namespace": "airflow",
+          "name": "airflow-statsd",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "airflow",
+          "name": "airflow-triggerer",
+          "kind": "StatefulSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-application-controller",
+          "kind": "StatefulSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-applicationset-controller",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-dex-server",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-image-updater-controller",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-notifications-controller",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-redis",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-repo-server",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "argocd",
+          "name": "argocd-server",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "cert-manager",
+          "name": "cert-manager",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "cert-manager",
+          "name": "cert-manager-cainjector",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "cert-manager",
+          "name": "cert-manager-webhook",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "cnpg-system",
+          "name": "cloudnative-pg",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "external-secrets",
+          "name": "external-secrets",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "external-secrets",
+          "name": "external-secrets-cert-controller",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "external-secrets",
+          "name": "external-secrets-webhook",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "ingress-nginx",
+          "name": "ingress-nginx-controller",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "clickhouse-operator",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "coredns",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "local-path-provisioner",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "metrics-server",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "svclb-ingress-nginx-controller-42ddb27a",
+          "kind": "DaemonSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "kube-system",
+          "name": "svclb-sftpgo-sftp-070d6e3b",
+          "kind": "DaemonSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-grafana",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-kube-state-metrics",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-operator",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-prometheus-node-exporter",
+          "kind": "DaemonSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "prometheus-kube-prometheus-stack-prometheus",
+          "kind": "StatefulSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "new-marketing-automation",
+          "name": "marketing-automation-backend",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "new-marketing-automation",
+          "name": "marketing-automation-frontend",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "radar",
+          "name": "radar",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "sftpgo",
+          "name": "sftpgo",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "vikunja",
+          "name": "vikunja",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "vikunja",
+          "name": "vikunja-typesense",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        }
+      ]
+    },
+    {
+      "name": "danavira-worker-1",
+      "role": "stateful",
+      "pods": 4,
+      "workloads": [
+        {
+          "namespace": "clickhouse",
+          "name": "chi-clickhouse-clickhouse-0-0",
+          "kind": "StatefulSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "minio",
+          "name": "minio",
+          "kind": "StatefulSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-prometheus-node-exporter",
+          "kind": "DaemonSet",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "postgres",
+          "name": "postgres-1",
+          "kind": "Pod",
+          "pods": 1,
+          "healthy": 1
+        }
+      ]
+    },
+    {
+      "name": "danavira-worker-2",
+      "role": "compute",
+      "pods": 5,
+      "workloads": [
+        {
+          "namespace": "airflow",
+          "name": "airflow-scheduler",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "airflow",
+          "name": "airflow-webserver",
+          "kind": "Deployment",
+          "pods": 1,
+          "healthy": 1
+        },
+        {
+          "namespace": "danavira-website",
+          "name": "danavira-website",
+          "kind": "Deployment",
+          "pods": 2,
+          "healthy": 2
+        },
+        {
+          "namespace": "monitoring",
+          "name": "kube-prometheus-stack-prometheus-node-exporter",
+          "kind": "DaemonSet",
+          "pods": 1,
+          "healthy": 1
+        }
+      ]
+    }
+  ]
+}

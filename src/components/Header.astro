@@ -8,7 +8,8 @@ interface Props {
   alternates: Alternates;
   /** Where each nav item points. Falls back to English when no translation exists. */
   nav: {
-    key: 'projects' | 'homelab' | 'writing' | 'cv' | 'certifications' | 'contact';
+    key:
+      'home' | 'journal' | 'projects' | 'homelab' | 'writing' | 'cv' | 'certifications' | 'contact';
     href: string;
   }[];
 }
@@ -27,7 +28,12 @@ const current = Astro.url.pathname;
       <ul>
         {nav.map(({ key, href }) => (
           <li>
-            <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>
+            <a
+              href={href}
+              aria-current={
+                (key === 'home' ? current === href : current.startsWith(href)) ? 'page' : undefined
+              }
+            >
               {dict.nav[key]}
             </a>
           </li>

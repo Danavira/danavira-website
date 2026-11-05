@@ -1,0 +1,268 @@
+---
+// A static picture of the homelab cluster from src/data/cluster.json, which
+// scripts/cluster-snapshot.mjs refreshes from the Skyhook Radar API on every
+// build. Plain HTML and CSS: no JavaScript, and it reads fine in a screen reader.
+import cluster from '../data/cluster.json';
+
+interface Props {
+  /** `full` lists every workload per node; `summary` is the stats and node totals. */
+  variant?: 'full' | 'summary';
+}
+
+const { variant = 'full' } = Astro.props;
+const radar = 'https://sky.danavira.com';
+const taken = new Date(cluster.takenAt).toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Asia/Tokyo',
+});
+const k8s = cluster.kubernetesVersion.replace(/^v/, '').replace(/\+k3s\d+$/, '');
+
+const stats = [
+  { value: cluster.nodeCount, label: 'nodes' },
+  { value: cluster.podCount, label: 'pods' },
+  { value: cluster.namespaceCount, label: 'namespaces' },
+  {
+    value: `${cluster.applications.healthy}/${cluster.applications.total}`,
+    label: 'Argo CD apps healthy',
+  },
+  { value: cluster.networkPolicies, label: 'network policies' },
+];
+
+type Workload = (typeof cluster.nodes)[number]['workloads'][number];
+const byNamespace = (workloads: Workload[]) => {
+  const groups = new Map<string, Workload[]>();
+  for (const w of workloads) groups.set(w.namespace, [...(groups.get(w.namespace) ?? []), w]);
+  return [...groups.entries()];
+};
+const shortName = (node: string) => node.replace(/^danavira-/, '');
+---
+
+<figure class:list={['cluster-map', variant]}>
+  <dl class="stats">
+    {stats.map((s) => (
+      <div>
+        <dd>{s.value}</dd>
+        <dt>{s.label}</dt>
+      </div>
+    ))}
+  </dl>
+
+  <div class="nodes">
+    {cluster.nodes.map((node) => (
+      <section class:list={['node', { primary: node.role === 'control plane' }]}>
+        <header>
+          <p class="role">{node.role || 'node'}</p>
+          <h3>{shortName(node.name)}</h3>
+          <p class="count">
+            {node.pods} pods · {new Set(node.workloads.map((w) => w.namespace)).size} namespaces
+          </p>
+        </header>
+        {variant === 'full' && (
+          <div class="namespaces">
+            {byNamespace(node.workloads).map(([ns, workloads]) => (
+              <div class="ns">
+                <p class="ns-name">{ns}</p>
+                <ul>
+                  {workloads.map((w) => (
+                    <li title={`${w.kind} ${ns}/${w.name}`}>
+                      <span class="name">{w.name}</span>
+                      <span class="pods" aria-hidden="true">
+                        {Array.from({ length: w.pods }, (_, i) => (
+                          <span class:list={['pod', { down: i >= w.healthy }]} />
+                        ))}
+                      </span>
+                      <span class="visually-hidden">
+                        {w.kind}, {w.pods} {w.pods === 1 ? 'pod' : 'pods'}, {w.healthy} healthy
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+    ))}
+  </div>
+
+  <figcaption>
+    <span>
+      k3s {k8s}. Snapshot from the cluster's Radar API, {taken}.
+      {variant === 'full' && ' Each dot is a pod; a hollow dot is not ready.'}
+    </span>
+    <a class="arrow-link" href={radar}>
+      Explore it live on sky.danavira.com
+    </a>
+  </figcaption>
+</figure>
+
+<style>
+  .cluster-map {
+    margin: var(--space-8) 0;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: var(--space-4) var(--space-6);
+    margin: 0 0 var(--space-6);
+    padding-block: var(--space-6);
+    border-block: 1px solid var(--border);
+  }
+
+  .stats div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .stats dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 1.6rem + 1.2vw, 2.75rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .stats dt {
+    margin-top: var(--space-2);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .nodes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 52rem) {
+    .full .nodes {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .summary .nodes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .node {
+    padding: var(--space-6);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+  }
+
+  .node.primary {
+    background: var(--surface);
+  }
+
+  .node header p,
+  .node h3 {
+    margin: 0;
+  }
+
+  .role {
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .node h3 {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-top: var(--space-1);
+  }
+
+  .count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .namespaces {
+    margin-top: var(--space-6);
+  }
+
+  /* The control plane carries most workloads, so its namespaces flow into two
+     columns on wide screens. */
+  @media (min-width: 52rem) {
+    .primary .namespaces {
+      columns: 2;
+      column-gap: var(--space-8);
+    }
+  }
+
+  .ns {
+    break-inside: avoid;
+    margin-bottom: var(--space-4);
+  }
+
+  .ns-name {
+    margin: 0 0 var(--space-1);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .ns ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .ns li {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding-block: 0.3rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pods {
+    display: flex;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .pod {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 1px solid var(--text);
+  }
+
+  .pod.down {
+    background: transparent;
+  }
+
+  figcaption {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-6);
+    margin-top: var(--space-4);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+</style>

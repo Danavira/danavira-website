@@ -1,9 +1,10 @@
 # Sveltia CMS configuration, served at /admin/config.yml.
 # Docs: https://github.com/sveltia/sveltia-cms
 #
-# Every save is a commit to main. The Image workflow builds the site, and
-# argocd-image-updater rolls the new image out, so a saved change is live a few
-# minutes later. Posts start as drafts: untick Draft and save to publish.
+# Every save is a commit to main. The Image workflow builds a new image, and
+# argocd-image-updater (data-platform-manifests, apps/image-updater-config)
+# commits its tag so Argo CD rolls it out: a saved change is live in about ten
+# minutes. Posts start as drafts: untick Draft and save to publish.
 
 backend:
   name: github
@@ -23,6 +24,23 @@ display_url: https://danavira.com
 # so images land next to the code that optimizes them.
 media_folder: public/uploads
 public_folder: /uploads
+
+# Every upload is converted to WebP, at most 2048px on the long side, in the
+# browser before it is committed. Re-encoding through a canvas also drops EXIF
+# data, including the GPS position phones write into photos.
+# scripts/lint-images.mjs fails the build if a photo with GPS gets in another way.
+media_libraries:
+  default:
+    config:
+      max_file_size: 26214400
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2048
+          height: 2048
+        svg:
+          optimize: true
 
 slug:
   encoding: ascii
@@ -87,6 +105,60 @@ collections:
         label: Body
         widget: markdown
         hint: 'Mermaid diagrams: a ```mermaid code block with an accDescr line (its alt text). No em dashes, the build rejects them.'
+
+  - name: journal
+    label: Journal
+    label_singular: Journal entry
+    description: Life updates at danavira.com/journal/. Day to day in Tokyo, work, photos. Live about ten minutes after saving.
+    folder: src/content/journal/en
+    path: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    extension: md
+    format: frontmatter
+    create: true
+    sortable_fields: [date, title]
+    # Photos go to src/assets/journal/ so Astro resizes them for each screen.
+    media_folder: ../../../assets/journal
+    public_folder: ../../../assets/journal
+    summary: '{{title}} · {{date | date("YYYY-MM-DD")}}{{draft | ternary(" · draft", "")}}'
+    fields:
+      - { name: title, label: Title, widget: string }
+      - name: date
+        label: Date
+        widget: datetime
+        time_format: false
+        format: YYYY-MM-DD
+        default: '{{now}}'
+      - name: location
+        label: Place
+        widget: string
+        required: false
+        hint: A city or neighbourhood, for example Shimokitazawa. Never an address.
+      - name: body
+        label: Text
+        widget: markdown
+        required: false
+        hint: No em dashes, the build rejects them.
+      - name: photos
+        label: Photos
+        label_singular: Photo
+        widget: list
+        required: false
+        hint: One photo shows full width, two side by side, three or more as a grid led by the first.
+        fields:
+          - { name: src, label: Photo, widget: image }
+          - name: alt
+            label: Description
+            widget: string
+            hint: What is in the photo, for someone who cannot see it. Required.
+          - name: caption
+            label: Caption
+            widget: string
+            required: false
+      - name: draft
+        label: Draft
+        widget: boolean
+        default: false
+        hint: Tick to keep this entry off the site while you work on it.
 
   - name: certifications
     label: Certifications
@@ -266,6 +338,11 @@ collections:
               pattern: ['^[\s\S]{1,200}$', 'Keep it to 200 characters or fewer'],
             }
           - { name: body, label: Bio, widget: markdown }
+          - name: about
+            label: About me
+            widget: text
+            required: false
+            hint: Shown in the About section of the home page. Plain text; leave a blank line between paragraphs.
       - name: cv
         label: Resume summary
         file: src/content/pages/en/cv.mdx

@@ -97,7 +97,7 @@ Alt text is required everywhere: the schema rejects an empty `alt`, and `lint-co
 
 ## Writing a post (CMS, no code)
 
-Posts, certifications, the resume and the home page copy are editable in the browser at **https://danavira.com/admin/** (Sveltia CMS). Every save is a commit to `main`, which the Image workflow turns into a new image.
+Posts, certifications, the resume and the home page copy are editable in the browser at **https://danavira.com/admin/** (Sveltia CMS). Every save is a commit to `main`. The Image workflow turns it into a new `:sha-<short>` image, Argo CD Image Updater commits that tag to `data-platform-manifests`, and Argo CD rolls it out, so a save is live in about ten minutes.
 
 One-time sign-in setup:
 
@@ -110,7 +110,20 @@ Writing:
 2. New posts start with **Draft** ticked. Saving a draft commits it but keeps it off the site, RSS and sitemap.
 3. To publish, untick **Draft** and save.
 
-The build rejects em dashes and images without alt text. If a save does not show up, check the Image workflow run in GitHub Actions for the error.
+The build rejects em dashes and images without alt text. If a save does not show up, check the Image workflow run in GitHub Actions for the error, then for a `chore: update image` commit from argocd-image-updater in `data-platform-manifests`.
+
+## Journal (life updates with photos)
+
+**Journal** in `/admin/` is for day-to-day updates: life in Tokyo, work, photos. Entries are published at `/journal/<date>-<slug>/`, listed newest first at `/journal/`, and the latest one shows as "Lately" on the home page. The Journal nav item appears with the first entry.
+
+- Add photos with **Add Photo**. Each needs a description (alt text); a caption is optional. One photo shows full width, two side by side, three or more as a grid led by the first.
+- Every upload is converted to WebP at most 2048px in the browser before it is committed, which also strips EXIF data, including GPS. `pnpm lint` (`scripts/lint-images.mjs`) fails on any committed image that still has a GPS position, and on HEIC files.
+- **Place** is a city or neighbourhood, never an address.
+- Photos live in the public repo under `src/assets/journal/`. Astro serves resized copies; the originals stay in Git history even if an entry is deleted.
+
+## Cluster map
+
+`/homelab/` and the home page show the cluster from `src/data/cluster.json`: nodes, namespaces, workloads, pods and Argo CD health, with no IPs, labels, logs or config. `pnpm build` refreshes it from the Skyhook Radar API at `sky.danavira.com` and keeps the committed copy if Radar is unreachable. Refresh and commit it by hand with `pnpm cluster:snapshot`. If Radar goes behind basic auth, set `RADAR_AUTH=user:password` for the build.
 
 ## Adding a post (by hand)
 

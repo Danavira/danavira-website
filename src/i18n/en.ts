@@ -9,6 +9,7 @@ export const en = {
     cv: 'Resume',
     certifications: 'Certifications',
     contact: 'Contact',
+    journal: 'Journal',
   },
   langSwitch: { label: '日本語', hreflang: 'ja' },
   home: {
@@ -20,6 +21,14 @@ export const en = {
     allWriting: 'All posts',
     contact: 'Links',
     allCertifications: 'All certifications',
+    about: 'About',
+    facts: {
+      now: 'Now',
+      based: 'Based in',
+      studied: 'Studied',
+      languages: 'Languages',
+    },
+    fullResume: 'Full resume',
   },
   links: { cv: 'Resume', github: 'GitHub', linkedin: 'LinkedIn', email: 'Email' },
   project: {
@@ -38,6 +47,13 @@ export const en = {
   projectsIndex: {
     title: 'Projects',
     description: 'Case studies of infrastructure and data platforms I have built and run.',
+  },
+  journal: {
+    title: 'Journal',
+    description: 'Life in Tokyo, work and what I have been up to lately, with photos.',
+    lately: 'Lately',
+    all: 'All updates',
+    back: 'Journal',
   },
   writingIndex: {
     title: 'Blog',

@@ -3,7 +3,13 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import JsonLd from '../components/JsonLd.astro';
 import { localizedPath, t, type Alternates, type Locale } from '../i18n';
-import { collectionLocales, featuredLocales, pageLocales, postLocales } from '../lib/content';
+import {
+  collectionLocales,
+  featuredLocales,
+  getJournal,
+  pageLocales,
+  postLocales,
+} from '../lib/content';
 import { ogKey } from '../lib/pages';
 import { site } from '../site.config';
 import '@fontsource-variable/inter';
@@ -51,11 +57,14 @@ const pick = (have: Locale[], path: string) =>
       : undefined;
 
 const withPosts = await postLocales();
+const hasJournal = (await getJournal()).length > 0;
 const nav = (
   [
+    { key: 'home', href: localizedPath(locale) },
     { key: 'projects', href: pick(await collectionLocales('projects'), 'projects') },
     { key: 'homelab', href: pick(await featuredLocales(), 'homelab') },
     { key: 'writing', href: pick(withPosts, 'writing') },
+    { key: 'journal', href: hasJournal ? localizedPath('en', 'journal') : undefined },
     { key: 'cv', href: pick(await pageLocales('cv'), 'cv') },
     { key: 'certifications', href: localizedPath('en', 'certifications') },
     { key: 'contact', href: localizedPath('en', 'contact') },
@@ -81,7 +90,9 @@ const hasFeed = locale === 'en' && withPosts.includes('en');
     {hreflangs.length > 1 && alternates.en && (
       <link rel="alternate" hreflang="x-default" href={new URL(alternates.en, Astro.site)} />
     )}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     {hasFeed && (
       <link rel="alternate" type="application/rss+xml" title={site.name} href="/rss.xml" />
