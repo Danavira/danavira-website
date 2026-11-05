@@ -1,5 +1,7 @@
 ---
+import { Image } from 'astro:assets';
 import { render } from 'astro:content';
+import ClusterMap from '../../components/ClusterMap.astro';
 import PostList from '../../components/PostList.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { alternatesFor, localeFromParam, localeParam, localizedPath, t } from '../../i18n';
@@ -7,10 +9,13 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import {
   getCertifications,
   getExperience,
+  getJournal,
   getOrdered,
   getPage,
   getProjects,
   getPublishedPosts,
+  journalExcerpt,
+  journalSlug,
   pageLocales,
   slugOf,
 } from '../../lib/content';
@@ -40,6 +45,13 @@ const aboutParagraphs = (page.data.about ?? '')
   .split(/\n\s*\n/)
   .map((p) => p.trim())
   .filter(Boolean);
+const [latest] = await getJournal();
+const latestWhen = latest?.data.date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Asia/Tokyo',
+});
 const currentRole = (await getExperience('work')).find((e) => !e.data.end);
 const spoken = (await getOrdered('skills')).find((s) => s.id === 'languages');
 const facts = [
@@ -159,6 +171,39 @@ const person = {
       </section>
     )}
 
+    {latest && (
+      <section aria-labelledby="lately">
+        <div class="section-head">
+          <h2 id="lately">{dict.journal.lately}</h2>
+          <a class="arrow-link" href="/journal/">
+            {dict.journal.all}
+          </a>
+        </div>
+        <article class:list={['lately', { 'has-photo': latest.data.photos.length > 0 }]}>
+          {latest.data.photos[0] && (
+            <a class="lately-photo" href={`/journal/${journalSlug(latest)}/`} tabindex="-1">
+              <Image
+                src={latest.data.photos[0].src}
+                alt={latest.data.photos[0].alt}
+                widths={[480, 800, 1200]}
+                sizes="(min-width: 52rem) 40rem, 100vw"
+              />
+            </a>
+          )}
+          <div>
+            <p class="eyebrow">
+              <time datetime={latest.data.date.toISOString()}>{latestWhen}</time>
+              {latest.data.location && ` / ${latest.data.location}`}
+            </p>
+            <h3>
+              <a href={`/journal/${journalSlug(latest)}/`}>{latest.data.title}</a>
+            </h3>
+            <p class="muted">{journalExcerpt(latest, 220)}</p>
+          </div>
+        </article>
+      </section>
+    )}
+
     {featured && (
       <section aria-labelledby="featured">
         <div class="section-head">
@@ -170,6 +215,7 @@ const person = {
           locale={locale}
           featured
         />
+        <ClusterMap variant="summary" />
       </section>
     )}
 
@@ -357,6 +403,47 @@ const person = {
   .about-facts dd {
     margin: var(--space-1) 0 0;
     font-size: 0.925rem;
+  }
+
+  .lately {
+    display: grid;
+    gap: var(--space-6) var(--space-12);
+    align-items: center;
+  }
+
+  @media (min-width: 52rem) {
+    .lately.has-photo {
+      grid-template-columns: 3fr 2fr;
+    }
+  }
+
+  .lately-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+    object-fit: cover;
+    border-radius: var(--radius);
+  }
+
+  .lately h3 {
+    margin: var(--space-2) 0 var(--space-3);
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.4rem);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .lately h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .lately h3 a:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--link-underline);
   }
 
   .section-head {

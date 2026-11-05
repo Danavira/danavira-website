@@ -13,6 +13,7 @@ export const ja: Dictionary = {
     cv: '職務経歴書',
     certifications: '資格',
     contact: 'お問い合わせ',
+    journal: '日記',
   },
   langSwitch: { label: 'English', hreflang: 'en' },
   home: {
@@ -42,6 +43,13 @@ export const ja: Dictionary = {
   projectsIndex: {
     title: 'プロジェクト',
     description: '構築・運用してきたインフラとデータ基盤のケーススタディ。',
+  },
+  journal: {
+    title: '日記',
+    description: '東京での暮らし、仕事、最近のことを写真と一緒に。',
+    lately: '最近',
+    all: 'すべての記録',
+    back: '日記',
   },
   writingIndex: {
     title: 'ブログ',

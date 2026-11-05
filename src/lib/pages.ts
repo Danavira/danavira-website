@@ -7,7 +7,10 @@ import {
   getPage,
   getProjects,
   getPublishedPosts,
+  getJournal,
   getTags,
+  journalExcerpt,
+  journalSlug,
   slugOf,
 } from './content';
 
@@ -70,6 +73,18 @@ export async function getAllPages(): Promise<PageMeta[]> {
     },
     { path: '/contact/', title: en.contact.title, description: en.contact.description },
   );
+
+  const journal = await getJournal();
+  if (journal.length > 0) {
+    out.push({ path: '/journal/', title: en.journal.title, description: en.journal.description });
+    for (const entry of journal) {
+      out.push({
+        path: `/journal/${journalSlug(entry)}/`,
+        title: entry.data.title,
+        description: journalExcerpt(entry),
+      });
+    }
+  }
 
   out.push({
     path: '/404/',

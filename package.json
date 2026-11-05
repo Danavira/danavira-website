@@ -9,12 +9,13 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/build-cv-pdf.mjs && node scripts/copy-cms.mjs",
+    "build": "node scripts/cluster-snapshot.mjs --soft && astro build && node scripts/build-cv-pdf.mjs && node scripts/copy-cms.mjs",
     "preview": "astro preview",
     "check": "astro check",
-    "lint": "eslint . && node scripts/lint-copy.mjs",
+    "lint": "eslint . && node scripts/lint-copy.mjs && node scripts/lint-images.mjs",
     "format": "prettier --write .",
-    "check:dist": "node scripts/check-dist.mjs"
+    "check:dist": "node scripts/check-dist.mjs",
+    "cluster:snapshot": "node scripts/cluster-snapshot.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "^7.3.4",

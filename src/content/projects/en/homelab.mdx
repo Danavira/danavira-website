@@ -29,6 +29,8 @@ links:
     href: https://github.com/Danavira/data-platform-docs
 ---
 
+import ClusterMap from '../../../components/ClusterMap.astro';
+
 ## Context
 
 At work I build pipelines on platforms someone else runs. I wanted to own the layer underneath: provision the machines, bring up Kubernetes, deploy stateful systems on it, and be the person who gets paged when it breaks.
@@ -38,6 +40,12 @@ So in March 2026 I rented three VPSs and turned them into a k3s cluster. It runs
 I also wrote things down as I went. Every significant decision has an ADR and every real outage has a postmortem, all public in [data-platform-docs](https://github.com/Danavira/data-platform-docs).
 
 ## Architecture
+
+What is running right now, grouped by node. The map is rebuilt from the cluster's [Radar](https://sky.danavira.com) API every time this site deploys.
+
+<ClusterMap />
+
+How it fits together:
 
 ```mermaid
 flowchart TB

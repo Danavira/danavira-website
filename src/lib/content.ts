@@ -154,3 +154,26 @@ export async function getTags(locale: Locale) {
     .map(([slug, v]) => ({ slug, ...v }))
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
+
+/** Journal entries, newest first. Drafts only in `pnpm dev`. */
+export async function getJournal() {
+  const entries = await getCollection('journal', (e) => showDrafts || !e.data.draft);
+  return entries.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+}
+
+/** `en/2026-11-05-shibuya` becomes `2026-11-05-shibuya`. */
+export function journalSlug(entry: CollectionEntry<'journal'>): string {
+  return entry.id.split('/').slice(1).join('/');
+}
+
+/** Plain-text opening of an entry for cards, OG images and descriptions. */
+export function journalExcerpt(entry: CollectionEntry<'journal'>, max = 160): string {
+  const text = (entry.body ?? '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[#>*_`~]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) return entry.data.title;
+  return text.length > max ? `${text.slice(0, max - 1).replace(/\s+\S*$/, '')}\u2026` : text;
+}

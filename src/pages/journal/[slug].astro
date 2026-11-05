@@ -1,0 +1,39 @@
+---
+import JournalEntry from '../../components/JournalEntry.astro';
+import { alternatesFor, t } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getJournal, journalExcerpt, journalSlug } from '../../lib/content';
+import '../../styles/prose.css';
+
+export async function getStaticPaths() {
+  return (await getJournal()).map((entry) => ({
+    params: { slug: journalSlug(entry) },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const dict = t('en').journal;
+const slug = journalSlug(entry);
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={journalExcerpt(entry)}
+  locale="en"
+  alternates={alternatesFor(['en'], `journal/${slug}`)}
+  ogType="article"
+>
+  <div class="container wide">
+    <JournalEntry entry={entry} standalone />
+    <a class="arrow-link back" href="/journal/">
+      {dict.all}
+    </a>
+  </div>
+</BaseLayout>
+
+<style>
+  .back {
+    margin-top: var(--space-8);
+  }
+</style>

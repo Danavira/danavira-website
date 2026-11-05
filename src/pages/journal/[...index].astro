@@ -1,0 +1,41 @@
+---
+import JournalEntry from '../../components/JournalEntry.astro';
+import { alternatesFor, t } from '../../i18n';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getJournal } from '../../lib/content';
+import '../../styles/prose.css';
+
+// English only, like /certifications/. A rest route so that it can return no
+// paths: the page only exists once there is an entry, and an empty journal
+// never shows up in the nav, sitemap or build.
+export async function getStaticPaths() {
+  return (await getJournal()).length > 0 ? [{ params: { index: undefined } }] : [];
+}
+
+const dict = t('en').journal;
+const entries = await getJournal();
+---
+
+<BaseLayout
+  title={dict.title}
+  description={dict.description}
+  locale="en"
+  alternates={alternatesFor(['en'], 'journal')}
+>
+  <div class="container wide">
+    <header class="intro">
+      <h1>{dict.title}</h1>
+      <p class="muted">{dict.description}</p>
+    </header>
+    {entries.map((entry) => (
+      <JournalEntry entry={entry} />
+    ))}
+  </div>
+</BaseLayout>
+
+<style>
+  .intro {
+    max-width: var(--measure);
+    margin-bottom: var(--space-12);
+  }
+</style>
