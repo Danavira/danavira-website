@@ -17,7 +17,6 @@ stack:
   - Grafana
   - Kyverno
   - Trivy
-  - Loki
   - GitHub Actions
   - Radar
 links:
@@ -35,7 +34,7 @@ import ClusterMap from '../../../components/ClusterMap.astro';
 
 At work I build pipelines on platforms someone else runs. I wanted to own the layer underneath: provision the machines, bring up Kubernetes, deploy stateful systems on it, and be the person who gets paged when it breaks.
 
-So in March 2026 I rented three VPSs and turned them into a k3s cluster. It runs the data stack I use at work (Postgres, ClickHouse, Airflow, object storage), this site, and a few small personal apps. The rule is no `kubectl apply` by hand: if it is in the cluster, it should be in Git. The exceptions are three tools I installed by hand, which I still owe a migration (see the end).
+So in March 2026 I rented three VPSs and turned them into a k3s cluster. It runs the data stack I use at work (Postgres, ClickHouse, Airflow, object storage), this site, and a few small personal apps. The rule from day one was no `kubectl apply` by hand: if it is in the cluster, it is in Git.
 
 I also wrote things down as I went. Every significant decision has an ADR and every real outage has a postmortem, all public in [data-platform-docs](https://github.com/Danavira/data-platform-docs).
 
@@ -89,8 +88,6 @@ flowchart TB
 
 **CI runs before Argo CD sees anything.** Every pull request to the manifests repo renders all Kustomize and Helm output once, then runs it through kubeconform for schema errors, kubesec for risky pod specs, Trivy for misconfiguration, and 12 Kyverno policies: no `:latest` tags, allowed registries only, CPU and memory requests required, and no privileged, root or host-namespace pods. A last gate fails the PR if it touches cluster roles, namespaces, CRDs or ingress without a `platform-approved` label.
 
-**The same guardrails inside the cluster.** Kyverno also runs as an admission controller, so a manifest applied by hand still meets the policies, and Trivy scans the images that actually run. Logs go to Loki and sit next to the Prometheus metrics in Grafana. All three were installed by hand rather than through Argo CD.
-
 **Delivery for this site.** Every push to `main`, including a post saved in the CMS, builds a `sha-` tagged image to GHCR. Argo CD Image Updater picks the newest one, commits the tag to the manifests repo, and Argo CD rolls it out as two replicas, non-root, read-only root filesystem, all capabilities dropped. Nobody runs a deploy command, and Git still records every version that went live. cert-manager gets the certificate from Let's Encrypt through a Cloudflare DNS-01 challenge.
 
 ## Decisions and tradeoffs
@@ -119,9 +116,9 @@ Smaller ones: renaming the control-plane node orphaned every PersistentVolume pi
 
 ## Results
 
-- **18 Argo CD Applications** deployed from one app-of-apps, across 14 namespaces, and about 180 commits to the manifests repo since March 2026. Apart from bootstrapping Argo CD and the three hand-installed tools, nothing in the cluster was applied by hand.
+- **18 Argo CD Applications** deployed from one app-of-apps, across 14 namespaces, and about 180 commits to the manifests repo since March 2026. Apart from bootstrapping Argo CD itself, nothing in the cluster was applied by hand.
 - **This site runs on it**, along with Postgres, ClickHouse, Airflow, MinIO, Grafana and a few small apps.
-- **Every change is checked before merge** by four scanners and 12 Kyverno policies, 9 of them enforced, and checked again at admission.
+- **Every change is checked before merge** by four scanners and 12 Kyverno policies, 9 of them enforced.
 - **Credentials live in one place.** Rotating a password is one edit in Infisical, with no commit or redeploy.
 - **7 postmortems and 3 ADRs**, written at the time, in public.
 
@@ -130,6 +127,6 @@ What it gave me that work had not: debugging below the application. Before this 
 ### What I would do next
 
 - Switch flannel from VXLAN to `host-gw`. The manual route and neighbour fixes do not survive a reboot, and all three nodes sit on one subnet, so the overlay buys nothing.
-- Bring Kyverno, Trivy and Loki under Argo CD. They were installed by hand, which makes them the one part of the cluster that Git cannot rebuild.
-- Turn Alertmanager on and send alerts somewhere I will see them. Today I learn about an outage by noticing it, and that is how Airflow stayed down for 18 days.
+- Run the same Kyverno policies as an admission controller in the cluster, deployed through Argo CD, so they hold for anything that reaches the API and not just for pull requests.
+- Add Loki for logs and turn Alertmanager on. Today I learn about an outage by noticing it, and that is how Airflow stayed down for 18 days.
 - Fill in the ResourceQuotas that are still stubs, so one namespace cannot crowd out the rest.

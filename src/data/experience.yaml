@@ -58,4 +58,4 @@
   link: https://sky.danavira.com
   bullets:
     - Designed and operate a 3-node k3s cluster across VPSs running realistic platform workloads, with Argo CD (app-of-apps), Image Updater for automated promotion, GitHub Actions CI/CD, and Helm for third-party tooling.
-    - Run data pipelines and platform services (Airflow, PostgreSQL, ClickHouse via operator, MinIO) with monitoring and Loki logging, external secrets via Infisical, Trivy image scanning, Kyverno admission policies and Seccomp profiles.
+    - Run data pipelines and platform services (Airflow, PostgreSQL, ClickHouse via operator, MinIO) with Prometheus and Grafana monitoring, external secrets via Infisical, Trivy and Kyverno policy checks in CI, and Seccomp profiles.
