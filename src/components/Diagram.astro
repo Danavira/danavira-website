@@ -24,13 +24,12 @@ if (!alt.trim()) throw new Error('Diagram: alt text is required');
     margin: var(--space-6) 0;
   }
 
-  /* Excalidraw exports assume a white page. Keeping that page in dark mode
-     beats shipping a second export per diagram. */
+  /* Excalidraw exports assume a white page. */
   .canvas {
     background: #ffffff;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: var(--space-4);
+    padding: var(--space-6);
   }
 
   .canvas :global(img) {

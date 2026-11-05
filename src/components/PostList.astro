@@ -15,14 +15,16 @@ const { posts, locale, headingLevel: Heading = 'h2' } = Astro.props;
 <ul class="posts">
   {posts.map((post) => (
     <li>
-      <Heading class="title">
-        <a href={localizedPath(locale, `writing/${slugOf(post)}`)}>{post.data.title}</a>
-        {post.data.draft && <span class="draft">{t(locale).post.draft}</span>}
-      </Heading>
       <time class="muted" datetime={post.data.pubDate.toISOString()}>
         {formatDate(post.data.pubDate, locale)}
       </time>
-      <p>{post.data.description}</p>
+      <div>
+        <Heading class="title">
+          <a href={localizedPath(locale, `writing/${slugOf(post)}`)}>{post.data.title}</a>
+          {post.data.draft && <span class="draft">{t(locale).post.draft}</span>}
+        </Heading>
+        <p class="muted">{post.data.description}</p>
+      </div>
     </li>
   ))}
 </ul>
@@ -31,30 +33,74 @@ const { posts, locale, headingLevel: Heading = 'h2' } = Astro.props;
   .posts {
     list-style: none;
     padding: 0;
+    margin: 0 0 var(--space-6);
+    border-top: 1px solid var(--border);
   }
 
-  .posts li + li {
-    margin-top: var(--space-6);
+  li {
+    position: relative;
+    display: grid;
+    gap: var(--space-1) var(--space-8);
+    padding-block: var(--space-6);
+    border-bottom: 1px solid var(--border);
+  }
+
+  @media (min-width: 40rem) {
+    li {
+      grid-template-columns: 9rem 1fr;
+      align-items: baseline;
+    }
   }
 
   .title {
-    font-size: 1.1rem;
+    font-family: var(--font-display);
+    font-size: 1.45rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
     margin: 0;
   }
 
+  .title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  /* Whole row is the link's hit area. */
+  .title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .title a:hover,
+  li:hover .title a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--link-underline);
+  }
+
   time {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
   }
 
   p {
-    margin: var(--space-1) 0 0;
+    margin: var(--space-2) 0 0;
+    font-size: 0.95rem;
   }
 
   .draft {
     margin-left: var(--space-2);
-    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--focus);
+    vertical-align: middle;
+    color: var(--text-muted);
+    border: 1px solid var(--border-strong);
+    padding: 0.1rem 0.4rem;
   }
 </style>

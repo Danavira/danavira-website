@@ -88,7 +88,7 @@ if (missing.length) {
 
   /* Wide layout widens diagrams and tables but keeps paragraphs at a readable
      measure. */
-  .wide .prose > :global(:not(picture, figure, table, pre, .diagram)) {
+  .wide .prose > :global(:not(picture, img, figure, table, pre, .diagram)) {
     max-width: var(--measure);
   }
 </style>

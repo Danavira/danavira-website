@@ -92,8 +92,13 @@ const isBadge = cert.id === 'kubestronaut';
     flex-direction: column;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    background: var(--surface);
+    background: var(--bg);
     overflow: hidden;
+    transition: border-color 0.25s var(--ease);
+  }
+
+  .cert:hover {
+    border-color: var(--border-strong);
   }
 
   .preview {
@@ -119,12 +124,16 @@ const isBadge = cert.id === 'kubestronaut';
   }
 
   .body {
-    padding: var(--space-4);
+    padding: var(--space-6);
   }
 
   h3 {
-    margin: 0;
-    font-size: 1.05rem;
+    margin: 0 0 var(--space-1);
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
   }
 
   .issuer {

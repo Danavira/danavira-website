@@ -6,6 +6,9 @@ import { localizedPath, t, type Alternates, type Locale } from '../i18n';
 import { collectionLocales, featuredLocales, pageLocales, postLocales } from '../lib/content';
 import { ogKey } from '../lib/pages';
 import { site } from '../site.config';
+import '@fontsource-variable/inter';
+import '@fontsource/instrument-serif/400.css';
+import '@fontsource/instrument-serif/400-italic.css';
 import '../styles/base.css';
 
 interface Props {
@@ -111,7 +114,13 @@ const hasFeed = locale === 'en' && withPosts.includes('en');
 
 <style>
   main {
-    padding-top: var(--space-12);
+    padding-top: var(--space-8);
+  }
+
+  @media (min-width: 40rem) {
+    main {
+      padding-top: var(--space-16);
+    }
   }
 
   main:focus {

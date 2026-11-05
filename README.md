@@ -88,9 +88,9 @@ Exactly one project per locale may set `featured: true`. It renders at `/homelab
   />
   ```
 
-  `Diagram` is available in every project and post without importing it. Diagrams sit on a white card so Excalidraw's colors work in dark mode.
+  `Diagram` is available in every project and post without importing it. Diagrams sit on a white card with a hairline border.
 
-- **Mermaid:** a fenced ` ```mermaid ` block. It is rendered to SVG at build time (light and dark variants) by headless Chromium. No Mermaid code ships to the browser.
+- **Mermaid:** a fenced ` ```mermaid ` block. It is rendered to SVG at build time by headless Chromium. No Mermaid code ships to the browser.
   Every block needs an `accDescr: ...` line; it becomes the image's alt text, and `lint-copy` fails without it.
 
 Alt text is required everywhere: the schema rejects an empty `alt`, and `lint-copy` rejects MDX images without one.
