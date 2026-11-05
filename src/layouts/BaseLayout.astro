@@ -53,6 +53,7 @@ const pick = (have: Locale[], path: string) =>
 const withPosts = await postLocales();
 const nav = (
   [
+    { key: 'home', href: localizedPath(locale) },
     { key: 'projects', href: pick(await collectionLocales('projects'), 'projects') },
     { key: 'homelab', href: pick(await featuredLocales(), 'homelab') },
     { key: 'writing', href: pick(withPosts, 'writing') },

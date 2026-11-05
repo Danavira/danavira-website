@@ -1,9 +1,10 @@
 # Sveltia CMS configuration, served at /admin/config.yml.
 # Docs: https://github.com/sveltia/sveltia-cms
 #
-# Every save is a commit to main. The Image workflow builds the site, and
-# argocd-image-updater rolls the new image out, so a saved change is live a few
-# minutes later. Posts start as drafts: untick Draft and save to publish.
+# Every save is a commit to main. The Image workflow builds a new image, and
+# argocd-image-updater (data-platform-manifests, apps/image-updater-config)
+# commits its tag so Argo CD rolls it out: a saved change is live in about ten
+# minutes. Posts start as drafts: untick Draft and save to publish.
 
 backend:
   name: github
@@ -266,6 +267,11 @@ collections:
               pattern: ['^[\s\S]{1,200}$', 'Keep it to 200 characters or fewer'],
             }
           - { name: body, label: Bio, widget: markdown }
+          - name: about
+            label: About me
+            widget: text
+            required: false
+            hint: Shown in the About section of the home page. Plain text; leave a blank line between paragraphs.
       - name: cv
         label: Resume summary
         file: src/content/pages/en/cv.mdx

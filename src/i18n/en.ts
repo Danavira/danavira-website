@@ -20,6 +20,14 @@ export const en = {
     allWriting: 'All posts',
     contact: 'Links',
     allCertifications: 'All certifications',
+    about: 'About',
+    facts: {
+      now: 'Now',
+      based: 'Based in',
+      studied: 'Studied',
+      languages: 'Languages',
+    },
+    fullResume: 'Full resume',
   },
   links: { cv: 'Resume', github: 'GitHub', linkedin: 'LinkedIn', email: 'Email' },
   project: {

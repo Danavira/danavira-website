@@ -97,7 +97,7 @@ Alt text is required everywhere: the schema rejects an empty `alt`, and `lint-co
 
 ## Writing a post (CMS, no code)
 
-Posts, certifications, the resume and the home page copy are editable in the browser at **https://danavira.com/admin/** (Sveltia CMS). Every save is a commit to `main`, which the Image workflow turns into a new image.
+Posts, certifications, the resume and the home page copy are editable in the browser at **https://danavira.com/admin/** (Sveltia CMS). Every save is a commit to `main`. The Image workflow turns it into a new `:sha-<short>` image, Argo CD Image Updater commits that tag to `data-platform-manifests`, and Argo CD rolls it out, so a save is live in about ten minutes.
 
 One-time sign-in setup:
 
@@ -110,7 +110,7 @@ Writing:
 2. New posts start with **Draft** ticked. Saving a draft commits it but keeps it off the site, RSS and sitemap.
 3. To publish, untick **Draft** and save.
 
-The build rejects em dashes and images without alt text. If a save does not show up, check the Image workflow run in GitHub Actions for the error.
+The build rejects em dashes and images without alt text. If a save does not show up, check the Image workflow run in GitHub Actions for the error, then for a `chore: update image` commit from argocd-image-updater in `data-platform-manifests`.
 
 ## Adding a post (by hand)
 

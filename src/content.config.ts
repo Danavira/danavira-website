@@ -58,6 +58,8 @@ const pages = defineCollection({
     title: z.string(),
     description: z.string().max(200),
     identity: z.string().optional(),
+    // Home page "About" block. Plain text; a blank line starts a new paragraph.
+    about: z.string().optional(),
   }),
 });
 

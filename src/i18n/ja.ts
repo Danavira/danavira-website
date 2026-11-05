@@ -24,6 +24,14 @@ export const ja: Dictionary = {
     allWriting: 'すべての記事',
     contact: 'リンク',
     allCertifications: 'すべての資格',
+    about: '自己紹介',
+    facts: {
+      now: '現在',
+      based: '拠点',
+      studied: '学歴',
+      languages: '言語',
+    },
+    fullResume: '職務経歴書を見る',
   },
   links: { cv: '職務経歴書', github: 'GitHub', linkedin: 'LinkedIn', email: 'メール' },
   project: {

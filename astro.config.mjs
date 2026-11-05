@@ -44,7 +44,19 @@ export default defineConfig({
       // Renders Mermaid to SVG at build time with headless Chromium, so no
       // Mermaid code reaches the browser. Light only: the site has no dark mode.
       rehypePlugins: [
-        [rehypeMermaid, { strategy: 'img-svg', mermaidConfig: { theme: 'neutral' } }],
+        [
+          rehypeMermaid,
+          {
+            strategy: 'img-svg',
+            mermaidConfig: {
+              theme: 'neutral',
+              // The SVG is shown in an <img>, which cannot load web fonts. Arial,
+              // Helvetica and Liberation Sans share metrics, so labels sized at
+              // build time fit when the reader's machine draws them.
+              themeVariables: { fontFamily: "Arial, Helvetica, 'Liberation Sans', sans-serif" },
+            },
+          },
+        ],
       ],
       // SmartyPants turns "---" into an em dash, which the copy rules forbid.
       // Quotes and ellipses are still curled.
